@@ -94,9 +94,8 @@ struct AppListView: View {
                 selectorOpenedURL = urlIdent
             }
             .onAppear {
-                // Xoá nền & ẩn gạch kẻ ngang (separator) cho List style Plain
                 UITableView.appearance().backgroundColor = .clear
-                UITableView.appearance().separatorStyle = .none 
+                UITableView.appearance().separatorStyle = .none
                 UICollectionView.appearance().backgroundColor = .clear
                 
                 if Double.random(in: 0 ..< 1) < 0.1 { isAdvertisementHidden = false }
@@ -160,11 +159,17 @@ struct AppListView: View {
             topSection
             mainContentSection
             appSections
+            
+            if !appList.isSelectorMode && !appList.filter.isSearching {
+                footer
+                    .listRowBackground(Color.clear)
+                    .hideListRowSeparator()
+            }
         }
         .if_iOS16_ClearBackground()
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
-        .listStyle(.plain) 
+        .listStyle(.plain)
         .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Troll AOV", comment: ""))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
@@ -194,7 +199,10 @@ struct AppListView: View {
                 .padding(.vertical, 8)
                 .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
                 .cornerRadius(14)
-                .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 8)
+                .listRowInsets(EdgeInsets()) // Reset insets để dùng padding tự do
                 .listRowBackground(Color.clear)
                 .hideListRowSeparator()
                 .transition(.scale.combined(with: .opacity))
@@ -205,7 +213,9 @@ struct AppListView: View {
                 Text(NSLocalizedString("Only removable system applications are eligible and listed.", comment: ""))
                     .font(.footnote)
                     .foregroundColor(.secondary)
-                    .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 8)
+                    .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
                     .hideListRowSeparator()
                     .transition(.opacity)
@@ -213,7 +223,9 @@ struct AppListView: View {
                 Text(String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount))
                     .font(.footnote)
                     .foregroundColor(.secondary)
-                    .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 8)
+                    .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
                     .hideListRowSeparator()
                     .transition(.opacity)
@@ -264,8 +276,10 @@ struct AppListView: View {
                         .cornerRadius(14)
                 }
                 .buttonStyle(PlainButtonStyle())
-                // Ép viền trên/dưới mỗi cell chỉ 4px. Khoảng cách giữa 2 ô sẽ là 8px (khít rịt như ảnh mẫu)
-                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16)) 
+                // Dùng padding trực tiếp thay vì listRowInsets để không bóp méo nội dung
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4) // Khoảng cách giữa các ô
+                .listRowInsets(EdgeInsets()) // Reset sạch insets mặc định
                 .listRowBackground(Color.clear)
                 .hideListRowSeparator()
             }
@@ -274,7 +288,6 @@ struct AppListView: View {
 
     @available(iOS 15.0, *)
     var advertisementSection: some View {
-        // Gom toàn bộ Ads vào chung 1 List Row (VStack) để hệ thống không tự bôi thêm khoảng trắng thừa
         VStack(alignment: .leading, spacing: 6) {
             Text(NSLocalizedString("💎 Premium & Support", comment: ""))
                 .textCase(.uppercase)
@@ -300,7 +313,11 @@ struct AppListView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 14)
                         .fill(Color(UIColor.secondarySystemGroupedBackground))
-                        .overlay(LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
+                        // Đã fix lỗi viền vuông: Thêm clipShape để cắt gọn overlay
+                        .overlay(
+                            LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing)
+                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                        )
                 )
             }
             .buttonStyle(PlainButtonStyle())
@@ -310,10 +327,15 @@ struct AppListView: View {
                 .foregroundColor(.secondary)
                 .padding(.leading, 8)
         }
-        .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
+        .padding(.horizontal, 16)
+        .padding(.top, 16)
+        .padding(.bottom, 8)
+        .listRowInsets(EdgeInsets())
         .listRowBackground(Color.clear)
         .hideListRowSeparator()
     }
+
+    var footer: some View { EmptyView() }
 
     private func localWarningMessage(_ urls: [URL]) -> String {
         guard let firstDebName = urls.first(where: { $0.pathExtension.lowercased() == "deb" })?.lastPathComponent else { return "" }
