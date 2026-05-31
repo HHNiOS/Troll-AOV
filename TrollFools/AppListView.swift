@@ -200,6 +200,7 @@ struct AppListView: View {
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.insetGrouped)
+        .listRowSpacing(8) // Fix khoảng cách giữa các card app nhỏ lại vừa vặn cực đẹp
         .navigationTitle(appList.isSelectorMode ?
             NSLocalizedString("Select Application", comment: "") :
             NSLocalizedString("Troll AOV", comment: "")
@@ -232,6 +233,7 @@ struct AppListView: View {
                         .transition(.scale.combined(with: .opacity))
                 }
             } footer: {
+                // Đưa đống text thông báo này vào Footer của phần topSection để nó nằm riêng độc lập
                 VStack(alignment: .leading, spacing: 8) {
                     if !appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded {
                         paddedHeaderFooterText(
@@ -288,10 +290,10 @@ struct AppListView: View {
     }
 
     var appSections: some View {
-        // Chỉ dùng đúng 1 Section bọc ngoài cùng để gom tất cả app vào 1 khối
-        Section {
-            ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
-                ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
+        ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
+            ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
+                // Mỗi app được bọc riêng trong 1 Section để tạo thành một khối bo góc độc lập
+                Section {
                     NavigationLink {
                         if appList.isSelectorMode, let selectorURL = appList.selectorURL {
                             InjectView(app, urlList: [selectorURL])
@@ -308,10 +310,6 @@ struct AppListView: View {
                         }
                     }
                 }
-            }
-        } footer: {
-            if !appList.isSelectorMode && !appList.filter.isSearching {
-                footer
             }
         }
     }
@@ -386,7 +384,6 @@ struct AppListView: View {
         }
     }
 
-    @ViewBuilder
     private func paddedHeaderFooterText(_ content: String) -> some View {
         if #available(iOS 15, *) {
             Text(content)
