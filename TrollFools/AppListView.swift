@@ -188,11 +188,7 @@ struct AppListView: View {
         List {
             topSection
 
-            if #available(iOS 15, *) {
-                if appList.activeScope == .all && shouldShowAdvertisement {
-                    advertisementSection
-                }
-            }
+            mainContentSection
 
             appSections
         }
@@ -201,7 +197,7 @@ struct AppListView: View {
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.insetGrouped)
         .introspect(.list, on: .iOS(.v15, .v16, .v17, .v18)) { tableView in
-            // Ép từ tầng UIKit để thu nhỏ khoảng cách an toàn, tránh lỗi type-check của SwiftUI
+            // Thu nhỏ khoảng cách padding của header gián tiếp qua UIKit để khít card rời cực đẹp
             if #available(iOS 15.0, *) {
                 tableView.sectionHeaderTopPadding = 4
             }
@@ -223,6 +219,16 @@ struct AppListView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+            }
+        }
+    }
+
+    // Tách riêng cụm check Ads ra khỏi khối List gốc để giải phóng bộ nhớ compiler
+    @ViewBuilder
+    var mainContentSection: some View {
+        if #available(iOS 15, *) {
+            if appList.activeScope == .all && shouldShowAdvertisement {
+                advertisementSection
             }
         }
     }
@@ -251,7 +257,7 @@ struct AppListView: View {
                         }
                         .font(.footnote)
                         .foregroundColor(.secondary)
-                        .modifier(AdaptiveHorizontalPadding()) // Dùng Custom Modifier riêng bẻ gãy lỗi check #available cũ
+                        .modifier(AdaptiveHorizontalPadding())
                         .transition(.opacity)
                     }
                 }
@@ -399,7 +405,6 @@ struct AppListView: View {
     }
 }
 
-// Tách logic check padding hệ điều hành riêng ra cấu trúc độc lập, sửa triệt để lỗi compile toán tử 3 ngôi
 struct AdaptiveHorizontalPadding: ViewModifier {
     func body(content: Content) -> some View {
         if #available(iOS 15, *) {
