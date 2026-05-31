@@ -195,15 +195,13 @@ struct AppListView: View {
     var topSection: some View {
         if AppListModel.hasTrollStore && appList.isRebuildNeeded {
             rebuildButton
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                .cornerRadius(14)
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 8)
-                .listRowInsets(EdgeInsets()) // Reset insets để dùng padding tự do
-                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
+                .listRowBackground(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 4)
+                )
                 .hideListRowSeparator()
                 .transition(.scale.combined(with: .opacity))
         }
@@ -213,9 +211,7 @@ struct AppListView: View {
                 Text(NSLocalizedString("Only removable system applications are eligible and listed.", comment: ""))
                     .font(.footnote)
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 8)
-                    .listRowInsets(EdgeInsets())
+                    .listRowInsets(EdgeInsets(top: 8, leading: 32, bottom: 12, trailing: 32))
                     .listRowBackground(Color.clear)
                     .hideListRowSeparator()
                     .transition(.opacity)
@@ -223,9 +219,7 @@ struct AppListView: View {
                 Text(String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount))
                     .font(.footnote)
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 8)
-                    .listRowInsets(EdgeInsets())
+                    .listRowInsets(EdgeInsets(top: 8, leading: 32, bottom: 12, trailing: 32))
                     .listRowBackground(Color.clear)
                     .hideListRowSeparator()
                     .transition(.opacity)
@@ -256,6 +250,7 @@ struct AppListView: View {
                 Spacer()
                 Image(systemName: "chevron.right.circle.fill").font(.title3).foregroundColor(Color(UIColor.tertiaryLabel))
             }
+            .padding(.vertical, 8)
         }
     }
 
@@ -270,17 +265,16 @@ struct AppListView: View {
                     }
                 } label: {
                     AppListCell(app: app)
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 16)
-                        .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                        .cornerRadius(14)
+                        .padding(.vertical, 8)
                 }
-                .buttonStyle(PlainButtonStyle())
-                // Dùng padding trực tiếp thay vì listRowInsets để không bóp méo nội dung
-                .padding(.horizontal, 16)
-                .padding(.vertical, 4) // Khoảng cách giữa các ô
-                .listRowInsets(EdgeInsets()) // Reset sạch insets mặc định
-                .listRowBackground(Color.clear)
+                // Dùng insets native của hệ thống: Hiển thị đầy đủ chữ và mũi tên, khoảng cách khít mượt
+                .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                .listRowBackground(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 4)
+                )
                 .hideListRowSeparator()
             }
         }
@@ -293,7 +287,7 @@ struct AppListView: View {
                 .textCase(.uppercase)
                 .font(.footnote.weight(.bold))
                 .foregroundColor(.secondary)
-                .padding(.leading, 8)
+                .padding(.leading, 16)
             
             Button {
                 UIApplication.shared.open(App.advertisementApp.url)
@@ -313,7 +307,7 @@ struct AppListView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 14)
                         .fill(Color(UIColor.secondarySystemGroupedBackground))
-                        // Đã fix lỗi viền vuông: Thêm clipShape để cắt gọn overlay
+                        // Đã fix lỗi viền vuông bằng clipShape
                         .overlay(
                             LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing)
                                 .clipShape(RoundedRectangle(cornerRadius: 14))
@@ -325,7 +319,7 @@ struct AppListView: View {
             Text(NSLocalizedString("Buy keys through my Mini App bot!!", comment: ""))
                 .font(.footnote)
                 .foregroundColor(.secondary)
-                .padding(.leading, 8)
+                .padding(.leading, 16)
         }
         .padding(.horizontal, 16)
         .padding(.top, 16)
