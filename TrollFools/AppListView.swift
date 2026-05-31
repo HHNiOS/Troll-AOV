@@ -195,13 +195,7 @@ struct AppListView: View {
         .if_iOS16_ClearBackground() // Ẩn nền List bản iOS 16+
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
-        .listStyle(.insetGrouped)
-        .introspect(.list, on: .iOS(.v15, .v16, .v17, .v18)) { tableView in
-            // Thu nhỏ khoảng cách padding của header gián tiếp qua UIKit để khít card rời cực đẹp
-            if #available(iOS 15.0, *) {
-                tableView.sectionHeaderTopPadding = 4
-            }
-        }
+        .listStyle(.plain) // Đổi sang Plain để tự kiểm soát khoảng cách các card hoàn toàn
         .navigationTitle(appList.isSelectorMode ?
             NSLocalizedString("Select Application", comment: "") :
             NSLocalizedString("Troll AOV", comment: "")
@@ -223,7 +217,6 @@ struct AppListView: View {
         }
     }
 
-    // Tách riêng cụm check Ads ra khỏi khối List gốc để giải phóng bộ nhớ compiler
     @ViewBuilder
     var mainContentSection: some View {
         if #available(iOS 15, *) {
@@ -241,6 +234,14 @@ struct AppListView: View {
             Section {
                 if AppListModel.hasTrollStore && appList.isRebuildNeeded {
                     rebuildButton
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .cornerRadius(12)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 6)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
                         .transition(.scale.combined(with: .opacity))
                 }
             } footer: {
@@ -257,11 +258,13 @@ struct AppListView: View {
                         }
                         .font(.footnote)
                         .foregroundColor(.secondary)
-                        .modifier(AdaptiveHorizontalPadding())
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 10)
                         .transition(.opacity)
                     }
                 }
             }
+            .listRowSeparator(.hidden)
         }
     }
 
@@ -307,23 +310,25 @@ struct AppListView: View {
     var appSections: some View {
         ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
             ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
-                Section {
-                    NavigationLink {
-                        if appList.isSelectorMode, let selectorURL = appList.selectorURL {
-                            InjectView(app, urlList: [selectorURL])
-                        } else {
-                            OptionView(app)
-                        }
-                    } label: {
-                        if #available(iOS 16, *) {
-                            AppListCell(app: app)
-                                .padding(.vertical, 2)
-                        } else {
-                            AppListCell(app: app)
-                                .padding(.vertical, 4)
-                        }
+                NavigationLink {
+                    if appList.isSelectorMode, let selectorURL = appList.selectorURL {
+                        InjectView(app, urlList: [selectorURL])
+                    } else {
+                        OptionView(app)
                     }
+                } label: {
+                    AppListCell(app: app)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85)) // Đổ nền card rời
+                        .cornerRadius(14) // Bo góc card rời siêu mượt giống mẫu
                 }
+                .buttonStyle(PlainButtonStyle())
+                .padding(.horizontal, 16)
+                .padding(.vertical, 5) // 👈 ĐÂY NÈ: Khoảng cách giữa các card app nhỏ và đều tăm tắp
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear) // Xoá nền dòng mặc định
+                .listRowSeparator(.hidden) // Ẩn gạch ngang của list
             }
         }
     }
@@ -335,12 +340,8 @@ struct AppListView: View {
                 UIApplication.shared.open(App.advertisementApp.url)
             } label: {
                 HStack(spacing: 12) {
-                    if #available(iOS 16, *) {
-                        AppListCell(app: App.advertisementApp)
-                    } else {
-                        AppListCell(app: App.advertisementApp)
-                            .padding(.vertical, 4)
-                    }
+                    AppListCell(app: App.advertisementApp)
+                        .padding(.vertical, 4)
                     Spacer()
                     Image(systemName: "cart.fill")
                         .foregroundColor(.white)
@@ -348,21 +349,34 @@ struct AppListView: View {
                         .background(LinearGradient(colors: [.orange, .red], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .clipShape(Circle())
                 }
+                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color(UIColor.secondarySystemGroupedBackground))
+                        .overlay(
+                            LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing)
+                        )
+                )
             }
+            .buttonStyle(PlainButtonStyle())
             .foregroundColor(.primary)
-            .listRowBackground(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(UIColor.secondarySystemGroupedBackground))
-                    .overlay(
-                        LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing)
-                    )
-            )
+            .padding(.horizontal, 16)
+            .padding(.vertical, 5)
+            .listRowInsets(EdgeInsets())
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
         } header: {
             paddedHeaderFooterText(NSLocalizedString("💎 Premium & Support", comment: ""))
                 .textCase(.uppercase)
                 .font(.footnote.weight(.bold))
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                .padding(.bottom, 4)
         } footer: {
             paddedHeaderFooterText(NSLocalizedString("Buy keys through my Mini App bot!!", comment: ""))
+                .padding(.horizontal, 20)
+                .padding(.bottom, 10)
         }
         .id("AdsSection")
     }
@@ -402,16 +416,6 @@ struct AppListView: View {
         Text(content)
             .font(.footnote)
             .foregroundColor(.secondary)
-    }
-}
-
-struct AdaptiveHorizontalPadding: ViewModifier {
-    func body(content: Content) -> some View {
-        if #available(iOS 15, *) {
-            content.padding(.horizontal, 0)
-        } else {
-            content.padding(.horizontal, 16)
-        }
     }
 }
 
