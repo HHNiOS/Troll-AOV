@@ -196,6 +196,10 @@ struct AppListView: View {
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.plain) // Đổi sang Plain để tự kiểm soát khoảng cách các card hoàn toàn
+        .introspect(.list, on: .iOS(.v14, .v15, .v16, .v17, .v18)) { tableView in
+            // Ép từ gốc UIKit: Ẩn gạch ngang của List trên iOS 14
+            tableView.separatorStyle = .none
+        }
         .navigationTitle(appList.isSelectorMode ?
             NSLocalizedString("Select Application", comment: "") :
             NSLocalizedString("Troll AOV", comment: "")
@@ -264,7 +268,7 @@ struct AppListView: View {
                     }
                 }
             }
-            .listRowSeparator(.hidden)
+            .hideListRowSeparator() // Custom Extension hỗ trợ iOS 14
         }
     }
 
@@ -320,15 +324,15 @@ struct AppListView: View {
                     AppListCell(app: app)
                         .padding(.vertical, 12)
                         .padding(.horizontal, 16)
-                        .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85)) // Đổ nền card rời
-                        .cornerRadius(14) // Bo góc card rời siêu mượt giống mẫu
+                        .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
+                        .cornerRadius(14)
                 }
                 .buttonStyle(PlainButtonStyle())
                 .padding(.horizontal, 16)
-                .padding(.vertical, 5) // 👈 ĐÂY NÈ: Khoảng cách giữa các card app nhỏ và đều tăm tắp
+                .padding(.vertical, 5)
                 .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear) // Xoá nền dòng mặc định
-                .listRowSeparator(.hidden) // Ẩn gạch ngang của list
+                .listRowBackground(Color.clear)
+                .hideListRowSeparator() // Dùng custom modifier bọc check an toàn tránh crash compile
             }
         }
     }
@@ -365,7 +369,7 @@ struct AppListView: View {
             .padding(.vertical, 5)
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
+            .hideListRowSeparator()
         } header: {
             paddedHeaderFooterText(NSLocalizedString("💎 Premium & Support", comment: ""))
                 .textCase(.uppercase)
@@ -419,12 +423,31 @@ struct AppListView: View {
     }
 }
 
+struct AdaptiveHorizontalPadding: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 15, *) {
+            content.padding(.horizontal, 0)
+        } else {
+            content.padding(.horizontal, 16)
+        }
+    }
+}
+
 extension View {
     @ViewBuilder func if_iOS16_ClearBackground() -> some View {
         if #available(iOS 16.0, *) {
             self.scrollContentBackground(.hidden)
         } else {
             self
+        }
+    }
+
+    // Modifier custom độc lập để giải quyết triệt để lỗi compile trên iOS 14
+    @ViewBuilder func hideListRowSeparator() -> some View {
+        if #available(iOS 15.0, *) {
+            self.listRowSeparator(.hidden)
+        } else {
+            self // Trên iOS 14 đã được ép ẩn từ Introspect UITableView ở trên rồi
         }
     }
 }
