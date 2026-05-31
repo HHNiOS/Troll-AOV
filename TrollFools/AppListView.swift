@@ -244,7 +244,6 @@ struct AppListView: View {
                         .transition(.opacity)
                     }
                 }
-                .padding(.bottom, -12) // Thu hẹp khoảng trống mặc định giữa các card app rời
             }
         }
     }
@@ -289,26 +288,40 @@ struct AppListView: View {
     }
 
     var appSections: some View {
-        ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
-            ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
-                Section {
-                    NavigationLink {
-                        if appList.isSelectorMode, let selectorURL = appList.selectorURL {
-                            InjectView(app, urlList: [selectorURL])
-                        } else {
-                            OptionView(app)
+        Group {
+            ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
+                ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
+                    // Tách mỗi app ra 1 Section độc lập nhưng ép header/footer rỗng để khoảng cách khít rịt lại
+                    Section {
+                        NavigationLink {
+                            if appList.isSelectorMode, let selectorURL = appList.selectorURL {
+                                InjectView(app, urlList: [selectorURL])
+                            } else {
+                                OptionView(app)
+                            }
+                        } label: {
+                            if #available(iOS 16, *) {
+                                AppListCell(app: app)
+                                    .padding(.vertical, 2)
+                            } else {
+                                AppListCell(app: app)
+                                    .padding(.vertical, 4)
+                            }
                         }
-                    } label: {
-                        if #available(iOS 16, *) {
-                            AppListCell(app: app)
-                                .padding(.vertical, 2)
-                        } else {
-                            AppListCell(app: app)
-                                .padding(.vertical, 4)
-                        }
+                    } header: {
+                        Spacer(minLength: 0).frame(height: 0)
+                    } footer: {
+                        Spacer(minLength: 0).frame(height: 0)
                     }
                 }
-                .padding(.vertical, -6) // Giữ nguyên ép khoảng cách card rời nhỏ lại
+            }
+            
+            if !appList.isSelectorMode && !appList.filter.isSearching {
+                Section {
+                    EmptyView()
+                } footer: {
+                    footer
+                }
             }
         }
     }
@@ -383,18 +396,11 @@ struct AppListView: View {
         }
     }
 
-    @ViewBuilder
+    // Đã fix sạch lỗi trả về 2 kiểu dữ liệu View khác nhau
     private func paddedHeaderFooterText(_ content: String) -> some View {
-        if #available(iOS 15, *) {
-            Text(content)
-                .font(.footnote)
-                .foregroundColor(.secondary)
-        } else {
-            Text(content)
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 16) // Padding nằm độc lập ở nhánh Text cuối cùng để đồng bộ kiểu View
-        }
+        Text(content)
+            .font(.footnote)
+            .foregroundColor(.secondary)
     }
 }
 
