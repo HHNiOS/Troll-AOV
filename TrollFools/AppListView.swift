@@ -200,7 +200,7 @@ struct AppListView: View {
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.insetGrouped)
-        .listRowSpacing(8) // Fix khoảng cách giữa các card app nhỏ lại vừa vặn cực đẹp
+        .if_iOS15_RowSpacing(8) // Dùng custom modifier để tránh crash build bản iOS cũ
         .navigationTitle(appList.isSelectorMode ?
             NSLocalizedString("Select Application", comment: "") :
             NSLocalizedString("Troll AOV", comment: "")
@@ -233,7 +233,6 @@ struct AppListView: View {
                         .transition(.scale.combined(with: .opacity))
                 }
             } footer: {
-                // Đưa đống text thông báo này vào Footer của phần topSection để nó nằm riêng độc lập
                 VStack(alignment: .leading, spacing: 8) {
                     if !appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded {
                         paddedHeaderFooterText(
@@ -292,7 +291,6 @@ struct AppListView: View {
     var appSections: some View {
         ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
             ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
-                // Mỗi app được bọc riêng trong 1 Section để tạo thành một khối bo góc độc lập
                 Section {
                     NavigationLink {
                         if appList.isSelectorMode, let selectorURL = appList.selectorURL {
@@ -384,6 +382,7 @@ struct AppListView: View {
         }
     }
 
+    @ViewBuilder
     private func paddedHeaderFooterText(_ content: String) -> some View {
         if #available(iOS 15, *) {
             Text(content)
@@ -402,6 +401,15 @@ extension View {
     @ViewBuilder func if_iOS16_ClearBackground() -> some View {
         if #available(iOS 16.0, *) {
             self.scrollContentBackground(.hidden)
+        } else {
+            self
+        }
+    }
+    
+    // Thêm modifier an toàn để check phiên bản trước khi áp dụng listRowSpacing
+    @ViewBuilder func if_iOS15_RowSpacing(_ spacing: CGFloat) -> some View {
+        if #available(iOS 15.0, *) {
+            self.listRowSpacing(spacing)
         } else {
             self
         }
