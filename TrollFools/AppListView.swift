@@ -200,7 +200,12 @@ struct AppListView: View {
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.insetGrouped)
-        .if_iOS15_RowSpacing(8) // Dùng custom modifier để tránh crash build bản iOS cũ
+        .introspect(.list, on: .iOS(.v15, .v16, .v17, .v18)) { tableView in
+            // Dùng Introspect chỉnh spacing trực tiếp ở tầng dưới để không bao giờ bị lỗi kiểu dữ liệu và ko crash iOS cũ
+            if #available(iOS 15.0, *) {
+                tableView.sectionHeaderTopPadding = 4
+            }
+        }
         .navigationTitle(appList.isSelectorMode ?
             NSLocalizedString("Select Application", comment: "") :
             NSLocalizedString("Troll AOV", comment: "")
@@ -235,13 +240,18 @@ struct AppListView: View {
             } footer: {
                 VStack(alignment: .leading, spacing: 8) {
                     if !appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded {
-                        paddedHeaderFooterText(
-                            appList.activeScope == .system
-                                ? NSLocalizedString("Only removable system applications are eligible and listed.", comment: "")
-                                : (appList.activeScope != .troll && appList.unsupportedCount > 0
-                                    ? String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount)
-                                    : "")
-                        )
+                        Group {
+                            if appList.activeScope == .system {
+                                Text(NSLocalizedString("Only removable system applications are eligible and listed.", comment: ""))
+                            } else if appList.activeScope != .troll && appList.unsupportedCount > 0 {
+                                Text(String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount))
+                            } else {
+                                Text("")
+                            }
+                        }
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, #available(iOS 15, *) ? 0 : 16)
                         .transition(.opacity)
                     }
                 }
@@ -382,18 +392,10 @@ struct AppListView: View {
         }
     }
 
-    @ViewBuilder
     private func paddedHeaderFooterText(_ content: String) -> some View {
-        if #available(iOS 15, *) {
-            Text(content)
-                .font(.footnote)
-                .foregroundColor(.secondary)
-        } else {
-            Text(content)
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 16)
-        }
+        Text(content)
+            .font(.footnote)
+            .foregroundColor(.secondary)
     }
 }
 
@@ -401,15 +403,6 @@ extension View {
     @ViewBuilder func if_iOS16_ClearBackground() -> some View {
         if #available(iOS 16.0, *) {
             self.scrollContentBackground(.hidden)
-        } else {
-            self
-        }
-    }
-    
-    // Thêm modifier an toàn để check phiên bản trước khi áp dụng listRowSpacing
-    @ViewBuilder func if_iOS15_RowSpacing(_ spacing: CGFloat) -> some View {
-        if #available(iOS 15.0, *) {
-            self.listRowSpacing(spacing)
         } else {
             self
         }
