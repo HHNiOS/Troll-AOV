@@ -94,7 +94,7 @@ struct AppListView: View {
                 selectorOpenedURL = urlIdent
             }
             .onAppear {
-                // Xoá nền & ẩn luôn gạch kẻ ngang (separator) triệt để cho iOS 14
+                // Xoá nền & ẩn gạch kẻ ngang (separator) cho List style Plain
                 UITableView.appearance().backgroundColor = .clear
                 UITableView.appearance().separatorStyle = .none 
                 UICollectionView.appearance().backgroundColor = .clear
@@ -164,7 +164,7 @@ struct AppListView: View {
         .if_iOS16_ClearBackground()
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
-        .listStyle(.plain) // Dùng Plain để iOS không tự đẻ khoảng trống thừa
+        .listStyle(.plain) 
         .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Troll AOV", comment: ""))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
@@ -188,37 +188,35 @@ struct AppListView: View {
 
     @ViewBuilder
     var topSection: some View {
-        if (AppListModel.hasTrollStore && appList.isRebuildNeeded) || 
-           (!appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded) {
-            
-            if AppListModel.hasTrollStore && appList.isRebuildNeeded {
-                rebuildButton
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                    .cornerRadius(14)
-                    .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 4, trailing: 16))
-                    .listRowBackground(Color.clear)
-                    .hideListRowSeparator()
-                    .transition(.scale.combined(with: .opacity))
-            }
-
-            if !appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded {
-                Group {
-                    if appList.activeScope == .system {
-                        Text(NSLocalizedString("Only removable system applications are eligible and listed.", comment: ""))
-                    } else if appList.activeScope != .troll && appList.unsupportedCount > 0 {
-                        Text(String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount))
-                    } else {
-                        Text("")
-                    }
-                }
-                .font(.footnote)
-                .foregroundColor(.secondary)
-                .listRowInsets(EdgeInsets(top: 4, leading: 24, bottom: 8, trailing: 24))
+        if AppListModel.hasTrollStore && appList.isRebuildNeeded {
+            rebuildButton
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
+                .cornerRadius(14)
+                .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
                 .listRowBackground(Color.clear)
                 .hideListRowSeparator()
-                .transition(.opacity)
+                .transition(.scale.combined(with: .opacity))
+        }
+
+        if !appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded {
+            if appList.activeScope == .system {
+                Text(NSLocalizedString("Only removable system applications are eligible and listed.", comment: ""))
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                    .listRowBackground(Color.clear)
+                    .hideListRowSeparator()
+                    .transition(.opacity)
+            } else if appList.activeScope != .troll && appList.unsupportedCount > 0 {
+                Text(String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount))
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .listRowInsets(EdgeInsets(top: 8, leading: 24, bottom: 8, trailing: 24))
+                    .listRowBackground(Color.clear)
+                    .hideListRowSeparator()
+                    .transition(.opacity)
             }
         }
     }
@@ -260,15 +258,13 @@ struct AppListView: View {
                     }
                 } label: {
                     AppListCell(app: app)
-                        .padding(.vertical, 8) // Giữ nội dung app cell cho thoáng
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 16)
+                        .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
+                        .cornerRadius(14)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 4)
-                .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                .cornerRadius(14)
                 .buttonStyle(PlainButtonStyle())
-                
-                // 👇 CÁI NÀY LÀ TUYỆT CHIÊU KÉO CÁC APP SÁT VÀO NHAU NÈ
+                // Ép viền trên/dưới mỗi cell chỉ 4px. Khoảng cách giữa 2 ô sẽ là 8px (khít rịt như ảnh mẫu)
                 .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16)) 
                 .listRowBackground(Color.clear)
                 .hideListRowSeparator()
@@ -278,14 +274,13 @@ struct AppListView: View {
 
     @available(iOS 15.0, *)
     var advertisementSection: some View {
-        Group {
+        // Gom toàn bộ Ads vào chung 1 List Row (VStack) để hệ thống không tự bôi thêm khoảng trắng thừa
+        VStack(alignment: .leading, spacing: 6) {
             Text(NSLocalizedString("💎 Premium & Support", comment: ""))
                 .textCase(.uppercase)
                 .font(.footnote.weight(.bold))
                 .foregroundColor(.secondary)
-                .listRowInsets(EdgeInsets(top: 16, leading: 24, bottom: 4, trailing: 24))
-                .listRowBackground(Color.clear)
-                .hideListRowSeparator()
+                .padding(.leading, 8)
             
             Button {
                 UIApplication.shared.open(App.advertisementApp.url)
@@ -300,26 +295,24 @@ struct AppListView: View {
                         .background(LinearGradient(colors: [.orange, .red], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .clipShape(Circle())
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color(UIColor.secondarySystemGroupedBackground))
+                        .overlay(LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
+                )
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color(UIColor.secondarySystemGroupedBackground))
-                    .overlay(LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
-            )
             .buttonStyle(PlainButtonStyle())
-            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 4, trailing: 16))
-            .listRowBackground(Color.clear)
-            .hideListRowSeparator()
             
             Text(NSLocalizedString("Buy keys through my Mini App bot!!", comment: ""))
                 .font(.footnote)
                 .foregroundColor(.secondary)
-                .listRowInsets(EdgeInsets(top: 4, leading: 24, bottom: 16, trailing: 24))
-                .listRowBackground(Color.clear)
-                .hideListRowSeparator()
+                .padding(.leading, 8)
         }
+        .listRowInsets(EdgeInsets(top: 16, leading: 16, bottom: 8, trailing: 16))
+        .listRowBackground(Color.clear)
+        .hideListRowSeparator()
     }
 
     private func localWarningMessage(_ urls: [URL]) -> String {
