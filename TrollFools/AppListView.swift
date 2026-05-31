@@ -201,7 +201,7 @@ struct AppListView: View {
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.insetGrouped)
         .introspect(.list, on: .iOS(.v15, .v16, .v17, .v18)) { tableView in
-            // Dùng Introspect chỉnh spacing trực tiếp ở tầng dưới để không bao giờ bị lỗi kiểu dữ liệu và ko crash iOS cũ
+            // Ép từ tầng UIKit để thu nhỏ khoảng cách an toàn, tránh lỗi type-check của SwiftUI
             if #available(iOS 15.0, *) {
                 tableView.sectionHeaderTopPadding = 4
             }
@@ -251,7 +251,7 @@ struct AppListView: View {
                         }
                         .font(.footnote)
                         .foregroundColor(.secondary)
-                        .padding(.horizontal, #available(iOS 15, *) ? 0 : 16)
+                        .modifier(AdaptiveHorizontalPadding()) // Dùng Custom Modifier riêng bẻ gãy lỗi check #available cũ
                         .transition(.opacity)
                     }
                 }
@@ -396,6 +396,17 @@ struct AppListView: View {
         Text(content)
             .font(.footnote)
             .foregroundColor(.secondary)
+    }
+}
+
+// Tách logic check padding hệ điều hành riêng ra cấu trúc độc lập, sửa triệt để lỗi compile toán tử 3 ngôi
+struct AdaptiveHorizontalPadding: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 15, *) {
+            content.padding(.horizontal, 0)
+        } else {
+            content.padding(.horizontal, 16)
+        }
     }
 }
 
