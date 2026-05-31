@@ -1,0 +1,219 @@
+name: Build & Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release
+
+permissions:
+  contents: write
+
+env:
+  THEOS: ""
+  VERSION: "0.0.0-0"
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+
+      # =========================
+      # XCODE
+      # =========================
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "15.4"
+
+      # =========================
+      # CHECKOUT
+      # =========================
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # =========================
+      # DEPENDENCIES
+      # =========================
+      - name: Install Dependencies
+        run: |
+          echo "/usr/local/opt/make/libexec/gnubin" >> $GITHUB_PATH
+          echo "/opt/homebrew/opt/make/libexec/gnubin" >> $GITHUB_PATH
+
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          export HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK=1
+
+          brew install \
+            dpkg \
+            make \
+            ldid-procursus \
+            gnu-sed \
+            coreutils \
+            openssl@3 \
+            zip
+
+      # =========================
+      # VERSION
+      # =========================
+      - name: Read Version
+        run: |
+          VERSION_FILE="TrollFools/Version.xcconfig"
+
+          VERSION_MAIN=$(grep "VERSION" "$VERSION_FILE" | cut -d '=' -f2 | tr -d '[:space:]')
+          VERSION_BUILD=$(grep "BUILD_NUMBER" "$VERSION_FILE" | cut -d '=' -f2 | tr -d '[:space:]')
+
+          VERSION="${VERSION_MAIN}-${VERSION_BUILD}"
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version: $VERSION"
+
+      # =========================
+      # THEOS
+      # =========================
+      - name: Checkout THEOS
+        uses: actions/checkout@v4
+        with:
+          repository: theos/theos
+          ref: master
+          path: theos
+          submodules: recursive
+
+      - name: Checkout SDKs
+        uses: actions/checkout@v4
+        with:
+          repository: theos/sdks
+          ref: master
+          path: theos/sdks
+
+      - name: Setup THEOS Environment
+        run: |
+          echo "THEOS=$GITHUB_WORKSPACE/theos" >> $GITHUB_ENV
+          echo "THEOS_PACKAGE_SCHEME=rootless" >> $GITHUB_ENV
+          echo "FINALPACKAGE=1" >> $GITHUB_ENV
+
+      # =========================
+      # PERMISSION FIX (ĐÃ SỬA ĐỂ BẢO ĐẢM TOÀN BỘ SCRIPT CHẠY ĐƯỢC)
+      # =========================
+      - name: Grant Execute Permission for All Devkit Scripts
+        run: |
+          if [ -d "devkit" ]; then
+            chmod +x devkit/*.sh
+            echo "Successfully granted execute permission to all scripts in devkit/."
+          else
+            echo "Warning: devkit folder not found, checking recursively..."
+            find . -name "*.sh" -exec chmod +x {} +
+          fi
+
+      # =========================
+      # BUILD
+      # =========================
+      - name: Build Packages
+        run: |
+          export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+          export THEOS="$GITHUB_WORKSPACE/theos"
+
+          set -e
+
+          make clean
+          make package \
+            FINALPACKAGE=1 \
+            THEOS_PACKAGE_SCHEME=rootless
+
+      # =========================
+      # DEBUG BUILD OUTPUT
+      # =========================
+      - name: Debug Build Output
+        if: always()
+        run: |
+          echo "========== ROOT =========="
+          find . -maxdepth 2 || true
+
+          echo ""
+          echo "========== PACKAGES =========="
+          find packages || true
+
+          echo ""
+          echo "========== THEOS =========="
+          find .theos || true
+
+      # =========================
+      # VERIFY PACKAGE EXISTS
+      # =========================
+      - name: Verify Packages
+        run: |
+          if ! ls packages/*.deb 1> /dev/null 2>&1; then
+            echo ""
+            echo "ERROR: No .deb package generated!"
+            echo ""
+            exit 1
+          fi
+
+      # =========================
+      # PREPARE OUTPUT
+      # =========================
+      - name: Prepare Output
+        run: |
+          mkdir -p output
+
+          cp -fv packages/*.deb output/ || true
+          cp -fv packages/*.tipa output/ || true
+
+          echo ""
+          echo "========== OUTPUT =========="
+          ls -la output
+
+      # =========================
+      # CREATE ZIP
+      # =========================
+      - name: Compress Artifacts
+        run: |
+          if [ ! -d output ]; then
+            echo "ERROR: output directory missing!"
+            exit 1
+          fi
+
+          if [ -z "$(ls -A output)" ]; then
+            echo "ERROR: output directory empty!"
+            exit 1
+          fi
+
+          cd output
+          zip -r "../TrollFools-${{ env.VERSION }}.zip" ./*
+          cd ..
+
+          echo ""
+          echo "========== ZIP =========="
+          ls -lh "TrollFools-${{ env.VERSION }}.zip"
+
+      # =========================
+      # UPLOAD ARTIFACT
+      # =========================
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TrollFools-${{ env.VERSION }}
+          path: TrollFools-${{ env.VERSION }}.zip
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
+
+      # =========================
+      # CREATE RELEASE
+      # =========================
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            output/*.deb
+            output/*.tipa
+            TrollFools-${{ env.VERSION }}.zip
