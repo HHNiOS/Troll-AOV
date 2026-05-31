@@ -289,3 +289,78 @@ struct AppListView: View {
             
             Button {
                 UIApplication.shared.open(App.advertisementApp.url)
+            } label: {
+                HStack(spacing: 12) {
+                    AppListCell(app: App.advertisementApp)
+                        .padding(.vertical, 4)
+                    Spacer()
+                    Image(systemName: "cart.fill")
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(LinearGradient(colors: [.orange, .red], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .clipShape(Circle())
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+                    .overlay(LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing))
+            )
+            .buttonStyle(PlainButtonStyle())
+            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 4, trailing: 16))
+            .listRowBackground(Color.clear)
+            .hideListRowSeparator()
+            
+            Text(NSLocalizedString("Buy keys through my Mini App bot!!", comment: ""))
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .listRowInsets(EdgeInsets(top: 4, leading: 24, bottom: 16, trailing: 24))
+                .listRowBackground(Color.clear)
+                .hideListRowSeparator()
+        }
+    }
+
+    private func localWarningMessage(_ urls: [URL]) -> String {
+        guard let firstDebName = urls.first(where: { $0.pathExtension.lowercased() == "deb" })?.lastPathComponent else { return "" }
+        return String(format: NSLocalizedString("You’ve selected at least one Debian Package “%@”. It will not work as it was in a jailbroken environment.", comment: ""), firstDebName)
+    }
+
+    private func preprocessURL(_ url: URL) -> URL {
+        let isInbox = url.path.contains("/Documents/Inbox/")
+        guard isInbox else { return url }
+        let fileNameNoExt = url.deletingPathExtension().lastPathComponent
+        let fileNameComps = fileNameNoExt.components(separatedBy: CharacterSet(charactersIn: "._- "))
+        guard let lastComp = fileNameComps.last, fileNameComps.count > 1, lastComp.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil else { return url }
+        let newURL = url.deletingLastPathComponent().appendingPathComponent(String(fileNameNoExt.prefix(fileNameNoExt.count - lastComp.count - 1))).appendingPathExtension(url.pathExtension)
+        do {
+            try? FileManager.default.removeItem(at: newURL)
+            try FileManager.default.copyItem(at: url, to: newURL)
+            return newURL
+        } catch { return url }
+    }
+}
+
+extension View {
+    @ViewBuilder func if_iOS16_ClearBackground() -> some View {
+        if #available(iOS 16.0, *) {
+            self.scrollContentBackground(.hidden)
+        } else {
+            self
+        }
+    }
+
+    @ViewBuilder func hideListRowSeparator() -> some View {
+        if #available(iOS 15.0, *) {
+            self.listRowSeparator(.hidden)
+        } else {
+            self
+        }
+    }
+}
+
+struct URLIdentifiable: Identifiable {
+    let url: URL
+    var id: String { url.absoluteString }
+}
