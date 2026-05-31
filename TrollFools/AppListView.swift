@@ -3,7 +3,7 @@
 //  TrollFools
 //
 //  Created by Lessica on 2024/7/19.
-//  UI Upgraded 🚀 (Fixed Background Zoom)
+//  UI Upgraded 🚀 (Full Bleed Background)
 //
 
 import CocoaLumberjackSwift
@@ -39,14 +39,14 @@ struct AppListView: View {
     }
 
     var body: some View {
-        // Bọc ZStack ngoài cùng để làm ảnh nền cố định chuẩn đét ở đáy
+        // Bọc ZStack ngoài cùng để làm ảnh nền cố định tràn viền 100%
         ZStack {
             Image("anime_bg")
                 .resizable()
-                .scaledToFit() // Đổi thành Fit để ảnh giữ nguyên tỉ lệ gốc, không bị zoom
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom) // Cố định ở đáy
+                .scaledToFill() // Trở lại Fill để ảnh đè hết mấy góc đen, tràn viền toàn app
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                 .ignoresSafeArea()
-                .opacity(0.4) // Độ mờ ở đây nha
+                .opacity(0.4) // Độ mờ wibu sương sương ở đây nha
             
             if #available(iOS 15, *) {
                 content
@@ -151,7 +151,7 @@ struct AppListView: View {
                     viewController.navigationController?.navigationBar.prefersLargeTitles = true
                     viewController.navigationItem.largeTitleDisplayMode = .always
                     
-                    // Ép các controller của NavigationView trong suốt để lòi ảnh nền ra ngoài
+                    // Ép các controller của Trong suốt hoàn toàn để lòi ảnh nền ra ngoài
                     viewController.view.backgroundColor = .clear
                     viewController.navigationController?.view.backgroundColor = .clear
                 }
