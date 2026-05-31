@@ -176,10 +176,6 @@ struct AppListView: View {
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.plain) // Đổi sang Plain để tự kiểm soát khoảng cách các card hoàn toàn
-        .introspect(.table, on: .iOS(.v14, .v15)) { tableView in
-            // Sử dụng .table đúng cú pháp bản mới để ẩn line trên iOS cũ
-            tableView.separatorStyle = .none
-        }
         .navigationTitle(appList.isSelectorMode ?
             NSLocalizedString("Select Application", comment: "") :
             NSLocalizedString("Troll AOV", comment: "")
