@@ -3,7 +3,7 @@
 //  TrollFools
 //
 //  Created by Lessica on 2024/7/19.
-//  UI Upgraded 🚀 (Fixed Background Layered)
+//  UI Upgraded 🚀 (Fixed Background Zoom)
 //
 
 import CocoaLumberjackSwift
@@ -43,8 +43,8 @@ struct AppListView: View {
         ZStack {
             Image("anime_bg")
                 .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom) // Cố định ở đáy, kéo mới lộ thêm
+                .scaledToFit() // Đổi thành Fit để ảnh giữ nguyên tỉ lệ gốc, không bị zoom
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom) // Cố định ở đáy
                 .ignoresSafeArea()
                 .opacity(0.4) // Độ mờ ở đây nha
             
