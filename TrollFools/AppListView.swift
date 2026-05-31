@@ -288,8 +288,9 @@ struct AppListView: View {
     }
 
     var appSections: some View {
-        Section {
-            ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
+        // Duyệt qua từng nhóm key, mỗi nhóm sẽ là một Section riêng biệt của List
+        ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
+            Section {
                 ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
                     NavigationLink {
                         if appList.isSelectorMode, let selectorURL = appList.selectorURL {
@@ -307,10 +308,12 @@ struct AppListView: View {
                         }
                     }
                 }
-            }
-        } footer: {
-            if !appList.isSelectorMode && !appList.filter.isSearching {
-                footer
+            } footer: {
+                // Chỉ hiển thị footer ở Section cuối cùng nếu thỏa mãn điều kiện
+                if sectionKey == Array(appList.activeScopeApps.keys).last,
+                   !appList.isSelectorMode, !appList.filter.isSearching {
+                    footer
+                }
             }
         }
     }
