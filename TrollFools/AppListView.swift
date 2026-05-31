@@ -244,7 +244,7 @@ struct AppListView: View {
                         .transition(.opacity)
                     }
                 }
-                .padding(.bottom, -12) // 👇 Triệt tiêu khoảng trống thừa bên dưới chữ thông báo, ép card app đầu tiên dịch lên sát hơn
+                .padding(.bottom, -12) // Thu hẹp khoảng trống mặc định giữa các card app rời
             }
         }
     }
@@ -291,7 +291,6 @@ struct AppListView: View {
     var appSections: some View {
         ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
             ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
-                // Mỗi app nằm trong 1 Section độc lập để giữ UI card gốc, nhưng ép padding âm dọc để chúng kéo sát lại gần nhau
                 Section {
                     NavigationLink {
                         if appList.isSelectorMode, let selectorURL = appList.selectorURL {
@@ -309,7 +308,7 @@ struct AppListView: View {
                         }
                     }
                 }
-                .padding(.vertical, -6) // 👇 ĐÂY NÈ: Thu hẹp khoảng trống mặc định giữa các card app rời lại cho sát nhau vừa vặn cực đẹp
+                .padding(.vertical, -6) // Giữ nguyên ép khoảng cách card rời nhỏ lại
             }
         }
     }
@@ -384,6 +383,7 @@ struct AppListView: View {
         }
     }
 
+    @ViewBuilder
     private func paddedHeaderFooterText(_ content: String) -> some View {
         if #available(iOS 15, *) {
             Text(content)
@@ -393,7 +393,7 @@ struct AppListView: View {
             Text(content)
                 .font(.footnote)
                 .foregroundColor(.secondary)
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 16) // Padding nằm độc lập ở nhánh Text cuối cùng để đồng bộ kiểu View
         }
     }
 }
