@@ -109,7 +109,8 @@ struct AppListView: View {
             }
             .onAppear {
                 // Xoá sạch màu nền UIKit cũ
-                CoreUIKitAppearance.clearBackgrounds()
+                UITableView.appearance().backgroundColor = .clear
+                UICollectionView.appearance().backgroundColor = .clear
                 
                 if Double.random(in: 0 ..< 1) < 0.1 {
                     isAdvertisementHidden = false
@@ -150,11 +151,30 @@ struct AppListView: View {
                     viewController.navigationController?.navigationBar.prefersLargeTitles = true
                     viewController.navigationItem.largeTitleDisplayMode = .always
                     
+                    // Ép các controller của Trong suốt hoàn toàn để lòi ảnh nền ra ngoài
                     viewController.view.backgroundColor = .clear
                     viewController.navigationController?.view.backgroundColor = .clear
                 }
         } else {
             listView
+                .introspect(.list, on: .iOS(.v14)) { tableView in
+                    tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNormalMagnitude))
+                    
+                    if tableView.refreshControl == nil {
+                        tableView.refreshControl = {
+                            let refreshControl = UIRefreshControl()
+                            refreshControl.addAction(UIAction { action in
+                                appList.reload()
+
+                                if let control = action.sender as? UIRefreshControl {
+                                    control.endRefreshing()
+                                }
+                            }, for: .valueChanged)
+
+                            return refreshControl
+                        }()
+                    }
+                }
                 .introspect(.viewController, on: .iOS(.v14)) { viewController in
                     viewController.navigationItem.searchController = nil
                     viewController.navigationController?.navigationBar.prefersLargeTitles = true
@@ -168,14 +188,18 @@ struct AppListView: View {
         List {
             topSection
 
-            mainContentSection
+            if #available(iOS 15, *) {
+                if appList.activeScope == .all && shouldShowAdvertisement {
+                    advertisementSection
+                }
+            }
 
             appSections
         }
         .if_iOS16_ClearBackground() // Ẩn nền List bản iOS 16+
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
-        .listStyle(.plain) // Đổi sang Plain để tự kiểm soát khoảng cách các card hoàn toàn
+        .listStyle(.insetGrouped)
         .navigationTitle(appList.isSelectorMode ?
             NSLocalizedString("Select Application", comment: "") :
             NSLocalizedString("Troll AOV", comment: "")
@@ -198,15 +222,6 @@ struct AppListView: View {
     }
 
     @ViewBuilder
-    var mainContentSection: some View {
-        if #available(iOS 15, *) {
-            if appList.activeScope == .all && shouldShowAdvertisement {
-                advertisementSection
-            }
-        }
-    }
-
-    @ViewBuilder
     var topSection: some View {
         if (AppListModel.hasTrollStore && appList.isRebuildNeeded) || 
            (!appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded) {
@@ -214,37 +229,23 @@ struct AppListView: View {
             Section {
                 if AppListModel.hasTrollStore && appList.isRebuildNeeded {
                     rebuildButton
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 6)
-                        .background(Color(UIColor.secondarySystemGroupedBackground))
-                        .cornerRadius(12)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 6)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
                         .transition(.scale.combined(with: .opacity))
                 }
             } footer: {
                 VStack(alignment: .leading, spacing: 8) {
                     if !appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded {
-                        Group {
-                            if appList.activeScope == .system {
-                                Text(NSLocalizedString("Only removable system applications are eligible and listed.", comment: ""))
-                            } else if appList.activeScope != .troll && appList.unsupportedCount > 0 {
-                                Text(String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount))
-                            } else {
-                                Text("")
-                            }
-                        }
-                        .font(.footnote)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 10)
+                        paddedHeaderFooterText(
+                            appList.activeScope == .system
+                                ? NSLocalizedString("Only removable system applications are eligible and listed.", comment: "")
+                                : (appList.activeScope != .troll && appList.unsupportedCount > 0
+                                    ? String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount)
+                                    : "")
+                        )
                         .transition(.opacity)
                     }
                 }
+                .padding(.bottom, -12) // 👇 Triệt tiêu khoảng trống thừa bên dưới chữ thông báo, ép card app đầu tiên dịch lên sát hơn
             }
-            .hideListRowSeparator()
         }
     }
 
@@ -290,25 +291,25 @@ struct AppListView: View {
     var appSections: some View {
         ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
             ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
-                NavigationLink {
-                    if appList.isSelectorMode, let selectorURL = appList.selectorURL {
-                        InjectView(app, urlList: [selectorURL])
-                    } else {
-                        OptionView(app)
+                // Mỗi app nằm trong 1 Section độc lập để giữ UI card gốc, nhưng ép padding âm dọc để chúng kéo sát lại gần nhau
+                Section {
+                    NavigationLink {
+                        if appList.isSelectorMode, let selectorURL = appList.selectorURL {
+                            InjectView(app, urlList: [selectorURL])
+                        } else {
+                            OptionView(app)
+                        }
+                    } label: {
+                        if #available(iOS 16, *) {
+                            AppListCell(app: app)
+                                .padding(.vertical, 2)
+                        } else {
+                            AppListCell(app: app)
+                                .padding(.vertical, 4)
+                        }
                     }
-                } label: {
-                    AppListCell(app: app)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 16)
-                        .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                        .cornerRadius(14)
                 }
-                .buttonStyle(PlainButtonStyle())
-                .padding(.horizontal, 16)
-                .padding(.vertical, 5)
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .hideListRowSeparator()
+                .padding(.vertical, -6) // 👇 ĐÂY NÈ: Thu hẹp khoảng trống mặc định giữa các card app rời lại cho sát nhau vừa vặn cực đẹp
             }
         }
     }
@@ -320,8 +321,12 @@ struct AppListView: View {
                 UIApplication.shared.open(App.advertisementApp.url)
             } label: {
                 HStack(spacing: 12) {
-                    AppListCell(app: App.advertisementApp)
-                        .padding(.vertical, 4)
+                    if #available(iOS 16, *) {
+                        AppListCell(app: App.advertisementApp)
+                    } else {
+                        AppListCell(app: App.advertisementApp)
+                            .padding(.vertical, 4)
+                    }
                     Spacer()
                     Image(systemName: "cart.fill")
                         .foregroundColor(.white)
@@ -329,34 +334,21 @@ struct AppListView: View {
                         .background(LinearGradient(colors: [.orange, .red], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .clipShape(Circle())
                 }
-                .padding(.vertical, 8)
-                .padding(.horizontal, 16)
-                .background(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Color(UIColor.secondarySystemGroupedBackground))
-                        .overlay(
-                            LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing)
-                        )
-                )
             }
-            .buttonStyle(PlainButtonStyle())
             .foregroundColor(.primary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 5)
-            .listRowInsets(EdgeInsets())
-            .listRowBackground(Color.clear)
-            .hideListRowSeparator()
+            .listRowBackground(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+                    .overlay(
+                        LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing)
+                    )
+            )
         } header: {
             paddedHeaderFooterText(NSLocalizedString("💎 Premium & Support", comment: ""))
                 .textCase(.uppercase)
                 .font(.footnote.weight(.bold))
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-                .padding(.bottom, 4)
         } footer: {
             paddedHeaderFooterText(NSLocalizedString("Buy keys through my Mini App bot!!", comment: ""))
-                .padding(.horizontal, 20)
-                .padding(.bottom, 10)
         }
         .id("AdsSection")
     }
@@ -393,27 +385,16 @@ struct AppListView: View {
     }
 
     private func paddedHeaderFooterText(_ content: String) -> some View {
-        Text(content)
-            .font(.footnote)
-            .foregroundColor(.secondary)
-    }
-}
-
-struct AdaptiveHorizontalPadding: ViewModifier {
-    func body(content: Content) -> some View {
         if #available(iOS 15, *) {
-            content.padding(.horizontal, 0)
+            Text(content)
+                .font(.footnote)
+                .foregroundColor(.secondary)
         } else {
-            content.padding(.horizontal, 16)
+            Text(content)
+                .font(.footnote)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 16)
         }
-    }
-}
-
-// Helper tránh lỗi type-check trên iOS 14
-struct CoreUIKitAppearance {
-    static func clearBackgrounds() {
-        UITableView.appearance().backgroundColor = .clear
-        UICollectionView.appearance().backgroundColor = .clear
     }
 }
 
@@ -421,14 +402,6 @@ extension View {
     @ViewBuilder func if_iOS16_ClearBackground() -> some View {
         if #available(iOS 16.0, *) {
             self.scrollContentBackground(.hidden)
-        } else {
-            self
-        }
-    }
-
-    @ViewBuilder func hideListRowSeparator() -> some View {
-        if #available(iOS 15.0, *) {
-            self.listRowSeparator(.hidden)
         } else {
             self
         }
