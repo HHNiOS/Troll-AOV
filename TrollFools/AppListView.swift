@@ -109,8 +109,7 @@ struct AppListView: View {
             }
             .onAppear {
                 // Xoá sạch màu nền UIKit cũ
-                UITableView.appearance().backgroundColor = .clear
-                UICollectionView.appearance().backgroundColor = .clear
+                CoreUIKitAppearance.clearBackgrounds()
                 
                 if Double.random(in: 0 ..< 1) < 0.1 {
                     isAdvertisementHidden = false
@@ -151,30 +150,11 @@ struct AppListView: View {
                     viewController.navigationController?.navigationBar.prefersLargeTitles = true
                     viewController.navigationItem.largeTitleDisplayMode = .always
                     
-                    // Ép các controller của Trong suốt hoàn toàn để lòi ảnh nền ra ngoài
                     viewController.view.backgroundColor = .clear
                     viewController.navigationController?.view.backgroundColor = .clear
                 }
         } else {
             listView
-                .introspect(.list, on: .iOS(.v14)) { tableView in
-                    tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: CGFloat.leastNormalMagnitude))
-                    
-                    if tableView.refreshControl == nil {
-                        tableView.refreshControl = {
-                            let refreshControl = UIRefreshControl()
-                            refreshControl.addAction(UIAction { action in
-                                appList.reload()
-
-                                if let control = action.sender as? UIRefreshControl {
-                                    control.endRefreshing()
-                                }
-                            }, for: .valueChanged)
-
-                            return refreshControl
-                        }()
-                    }
-                }
                 .introspect(.viewController, on: .iOS(.v14)) { viewController in
                     viewController.navigationItem.searchController = nil
                     viewController.navigationController?.navigationBar.prefersLargeTitles = true
@@ -196,8 +176,8 @@ struct AppListView: View {
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.plain) // Đổi sang Plain để tự kiểm soát khoảng cách các card hoàn toàn
-        .introspect(.list, on: .iOS(.v14, .v15, .v16, .v17, .v18)) { tableView in
-            // Ép từ gốc UIKit: Ẩn gạch ngang của List trên iOS 14
+        .introspect(.table, on: .iOS(.v14, .v15)) { tableView in
+            // Sử dụng .table đúng cú pháp bản mới để ẩn line trên iOS cũ
             tableView.separatorStyle = .none
         }
         .navigationTitle(appList.isSelectorMode ?
@@ -268,7 +248,7 @@ struct AppListView: View {
                     }
                 }
             }
-            .hideListRowSeparator() // Custom Extension hỗ trợ iOS 14
+            .hideListRowSeparator()
         }
     }
 
@@ -332,7 +312,7 @@ struct AppListView: View {
                 .padding(.vertical, 5)
                 .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
-                .hideListRowSeparator() // Dùng custom modifier bọc check an toàn tránh crash compile
+                .hideListRowSeparator()
             }
         }
     }
@@ -433,6 +413,14 @@ struct AdaptiveHorizontalPadding: ViewModifier {
     }
 }
 
+// Helper tránh lỗi type-check trên iOS 14
+struct CoreUIKitAppearance {
+    static func clearBackgrounds() {
+        UITableView.appearance().backgroundColor = .clear
+        UICollectionView.appearance().backgroundColor = .clear
+    }
+}
+
 extension View {
     @ViewBuilder func if_iOS16_ClearBackground() -> some View {
         if #available(iOS 16.0, *) {
@@ -442,12 +430,11 @@ extension View {
         }
     }
 
-    // Modifier custom độc lập để giải quyết triệt để lỗi compile trên iOS 14
     @ViewBuilder func hideListRowSeparator() -> some View {
         if #available(iOS 15.0, *) {
             self.listRowSeparator(.hidden)
         } else {
-            self // Trên iOS 14 đã được ép ẩn từ Introspect UITableView ở trên rồi
+            self
         }
     }
 }
