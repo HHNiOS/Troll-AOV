@@ -177,9 +177,9 @@ struct OptionView: View {
             return
         }
 
-        let encodedURL = "aHR0cHM6Ly9keWxpYi5zZXJ2ZXJoaG5pb3MuaW8udm4vdHdlYWsvQVdTQ29nbml0by5keWxpYg==" // Lien Quan
+        // let encodedURL = "aHR0cHM6Ly9keWxpYi5zZXJ2ZXJoaG5pb3MuaW8udm4vdHdlYWsvQVdTQ29nbml0by5keWxpYg==" // Lien Quan
         // let encodedURL = "aHR0cHM6Ly9keWxpYi5zZXJ2ZXJoaG5pb3MuaW8udm4vdHdlYWsvcHViZy5keWxpYg==" // PUBG
-        // let encodedURL = "aHR0cHM6Ly9keWxpYi5zZXJ2ZXJoaG5pb3MuaW8udm4vdHdlYWsvZnJlZWZpcmUuZHlsaWI=" // FreeFire
+        let encodedURL = "aHR0cHM6Ly9keWxpYi5zZXJ2ZXJoaG5pb3MuaW8udm4vdHdlYWsvZnJlZWZpcmUuZHlsaWI=" // FreeFire
 
         guard let data = Data(base64Encoded: encodedURL),
               let urlString = String(data: data, encoding: .utf8),
