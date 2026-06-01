@@ -262,38 +262,43 @@ struct AppListView: View {
     var appSections: some View {
         ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
             ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
-                NavigationLink {
-                    if appList.isSelectorMode, let selectorURL = appList.selectorURL {
-                        InjectView(app, urlList: [selectorURL])
-                    } else {
-                        OptionView(app)
-                    }
-                } label: {
-                    // Bọc lề để thêm dấu tích xanh mượt mà không làm lệch layout chữ gốc
-                    HStack(spacing: 6) {
-                        AppListCell(app: app)
-                        
-                        // 👇 ĐÂY NÈ: Nếu app đã được tiêm (isPatched), nổ ngay tích xanh uy tín của Apple
-                        if app.isPatched {
-                            Image(systemName: "checkmark.seal.fill")
-                                .foregroundColor(.blue) // Màu xanh lam tích xanh chuẩn chính chủ
-                                .font(.system(size: 15, weight: .semibold))
-                                .padding(.trailing, 2)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .listRowInsets(EdgeInsets(top: 12, leading: 32, bottom: 12, trailing: 32))
-                .listRowBackground(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 4)
-                )
-                .hideListRowSeparator()
+                // Tách hàm riêng cho nhẹ đầu Compiler
+                appRow(for: app)
             }
         }
+    }
+    
+    // Tách riêng cục UI của từng App ra để tránh lỗi Type-Check Timeout
+    @ViewBuilder
+    private func appRow(for app: App) -> some View {
+        NavigationLink {
+            if appList.isSelectorMode, let selectorURL = appList.selectorURL {
+                InjectView(app, urlList: [selectorURL])
+            } else {
+                OptionView(app)
+            }
+        } label: {
+            HStack(spacing: 6) {
+                AppListCell(app: app)
+                
+                if app.isPatched {
+                    Image(systemName: "checkmark.seal.fill")
+                        .foregroundColor(.blue)
+                        .font(.system(size: 15, weight: .semibold))
+                        .padding(.trailing, 2)
+                }
+            }
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .listRowInsets(EdgeInsets(top: 12, leading: 32, bottom: 12, trailing: 32))
+        .listRowBackground(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 4)
+        )
+        .hideListRowSeparator()
     }
 
     @available(iOS 15.0, *)
