@@ -8,6 +8,26 @@
 import SwiftUI
 import UserNotifications // Thêm thư viện quản lý thông báo
 
+// Thêm Class này để "ép" iOS hiện thông báo ngay cả khi đang mở App (Foreground)
+class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
+    static let shared = NotificationManager()
+    
+    func setup() {
+        UNUserNotificationCenter.current().delegate = self
+    }
+    
+    // Hàm này bắt buộc hệ thống bung banner xuống dù đang dùng app
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        if #available(iOS 14.0, *) {
+            completionHandler([.banner, .list, .sound])
+        } else {
+            completionHandler([.alert, .sound])
+        }
+    }
+}
+
 @main
 struct TrollFoolsApp: SwiftUI.App {
 
@@ -19,6 +39,10 @@ struct TrollFoolsApp: SwiftUI.App {
 
     init() {
         try? FileManager.default.removeItem(at: InjectorV3.temporaryRoot)
+        
+        // Gọi setup delegate để ép hiện thông báo
+        NotificationManager.shared.setup()
+        
         // Xin quyền gửi thông báo ngay lúc mới mở app
         requestNotificationPermission()
     }
@@ -54,7 +78,6 @@ struct TrollFoolsApp: SwiftUI.App {
 
     // Hàm 2: Gọi API server để lấy data
     func fetchServerAndNotify() {
-        // 👇 THAY LINK JSON CỦA ÔNG VÀO ĐÂY
         guard let url = URL(string: "https://dylib.serverhhnios.io.vn/alert/AWSCognito.json") else { return } //Liên Quân
         // guard let url = URL(string: "https://dylib.serverhhnios.io.vn/alert/pubg.json") else { return } //PUBG
         // guard let url = URL(string: "https://dylib.serverhhnios.io.vn/alert/freefire.json") else { return } //Free Fire
