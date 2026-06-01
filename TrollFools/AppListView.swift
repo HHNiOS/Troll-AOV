@@ -75,24 +75,7 @@ struct AppListView: View {
     var content: some View {
         styledNavigationView
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: appList.activeScopeApps.keys)
-            .sheet(item: $selectorOpenedURL) { urlWrapper in
-                AppListView()
-                    .environmentObject(AppListModel(selectorURL: urlWrapper.url))
-            }
-            .onOpenURL { url in
-                let ext = url.pathExtension.lowercased()
-                guard url.isFileURL, ext == "dylib" || ext == "deb" || ext == "zip" else { return }
-
-                let urlIdent = URLIdentifiable(url: preprocessURL(url))
-                if #available(iOS 15, *) {
-                    if !isWarningHidden && ext == "deb" {
-                        temporaryOpenedURL = urlIdent
-                        isWarningPresented = true
-                        return
-                    }
-                }
-                selectorOpenedURL = urlIdent
-            }
+            // Đã xoá đoạn .sheet và .onOpenURL ở đây cho mượt!
             .onAppear {
                 UITableView.appearance().backgroundColor = .clear
                 UITableView.appearance().separatorStyle = .none
@@ -272,13 +255,12 @@ struct AppListView: View {
                     AppListCell(app: app)
                 }
                 .buttonStyle(PlainButtonStyle())
-                // 👇 CÚ CHỐT ĐÂY: Insets là 32px để thụt sâu vào, chừa đúng 16px khoảng trống bên trong background! Không bị đẩy mũi tên nữa.
                 .listRowInsets(EdgeInsets(top: 12, leading: 32, bottom: 12, trailing: 32))
                 .listRowBackground(
                     RoundedRectangle(cornerRadius: 14)
                         .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                        .padding(.horizontal, 16) // Background cách mép màn hình 16px
-                        .padding(.vertical, 4)    // Tổng khoảng cách 2 app kề nhau sẽ là 8px
+                        .padding(.horizontal, 16) 
+                        .padding(.vertical, 4)    
                 )
                 .hideListRowSeparator()
             }
