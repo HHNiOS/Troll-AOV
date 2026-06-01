@@ -29,6 +29,12 @@ before-package::
 	plutil -replace CFBundleShortVersionString -string "0.1" $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
 	plutil -replace CFBundleVersion -string "0.1" $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
 	
+	# === ĐOẠN XÓA URL SCHEME (DẤU TRỪ ĐỂ BỎ QUA LỖI NẾU KEY KHÔNG TỒN TẠI) ===
+	-plutil -remove CFBundleDocumentTypes $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
+	-plutil -remove UTImportedTypeDeclarations $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
+	-plutil -remove UTExportedTypeDeclarations $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
+	-plutil -remove CFBundleURLTypes $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
+	
 	# Xóa sạch các file ngôn ngữ InfoPlist.strings để nó không đè tên app nữa
 	find $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app -name "InfoPlist.strings" -delete
 	
