@@ -52,7 +52,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
     
     func fetchNgam(completion: @escaping (Bool) -> Void) {
-        guard let url = URL(string: "https://dylib.serverhhnios.io.vn/alert/AWSCognito.json") else {
+        // guard let url = URL(string: "https://dylib.serverhhnios.io.vn/alert/AWSCognito.json") else {
+        // guard let url = URL(string: "https://dylib.serverhhnios.io.vn/alert/pubg.json") else {
+        guard let url = URL(string: "https://dylib.serverhhnios.io.vn/alert/freefire.json") else {
             completion(false)
             return
         }
