@@ -49,12 +49,12 @@ final class AppListModel: ObservableObject {
 
     private static let allowedIdentifiers: Set<String> = [
         // Liên Quân
-        "com.garena.game.kgvn"
-        ,"com.garena.game.kgth" //Thái
-        ,"com.garena.game.kgtw" //Đài
-        ,"com.ngame.allstar.eu" //EU
+        //"com.garena.game.kgvn"
+        //,"com.garena.game.kgth" //Thái
+        //,"com.garena.game.kgtw" //Đài
+        //,"com.ngame.allstar.eu" //EU
         // "vn.vng.pubgmobile"
-        // "com.dts.freefireth"
+        "com.dts.freefireth"
     ]
 
     // MARK: - Properties
