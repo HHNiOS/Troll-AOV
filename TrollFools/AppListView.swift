@@ -262,42 +262,27 @@ struct AppListView: View {
     var appSections: some View {
         ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
             ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
-                appRow(for: app)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    private func appRow(for app: App) -> some View {
-        NavigationLink {
-            if appList.isSelectorMode, let selectorURL = appList.selectorURL {
-                InjectView(app, urlList: [selectorURL])
-            } else {
-                OptionView(app)
-            }
-        } label: {
-            HStack(spacing: 6) {
-                AppListCell(app: app)
-                
-                // Đã sử dụng đúng tên biến của TrollFools
-                if app.hasInjectedPlugIns {
-                    Image(systemName: "checkmark.seal.fill")
-                        .foregroundColor(.blue)
-                        .font(.system(size: 15, weight: .semibold))
-                        .padding(.trailing, 2)
+                NavigationLink {
+                    if appList.isSelectorMode, let selectorURL = appList.selectorURL {
+                        InjectView(app, urlList: [selectorURL])
+                    } else {
+                        OptionView(app)
+                    }
+                } label: {
+                    AppListCell(app: app)
                 }
+                .buttonStyle(PlainButtonStyle())
+                // 👇 CÚ CHỐT ĐÂY: Insets là 32px để thụt sâu vào, chừa đúng 16px khoảng trống bên trong background! Không bị đẩy mũi tên nữa.
+                .listRowInsets(EdgeInsets(top: 12, leading: 32, bottom: 12, trailing: 32))
+                .listRowBackground(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
+                        .padding(.horizontal, 16) // Background cách mép màn hình 16px
+                        .padding(.vertical, 4)    // Tổng khoảng cách 2 app kề nhau sẽ là 8px
+                )
+                .hideListRowSeparator()
             }
-            .padding(.vertical, 8)
         }
-        .buttonStyle(PlainButtonStyle())
-        .listRowInsets(EdgeInsets(top: 12, leading: 32, bottom: 12, trailing: 32))
-        .listRowBackground(
-            RoundedRectangle(cornerRadius: 14)
-                .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 4)
-        )
-        .hideListRowSeparator()
     }
 
     @available(iOS 15.0, *)
