@@ -170,7 +170,7 @@ struct AppListView: View {
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
         .listStyle(.plain)
-        .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Troll AOV", comment: ""))
+        .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Nakoto Panel", comment: ""))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -269,16 +269,27 @@ struct AppListView: View {
                         OptionView(app)
                     }
                 } label: {
-                    AppListCell(app: app)
+                    // Bọc lề để thêm dấu tích xanh mượt mà không làm lệch layout chữ gốc
+                    HStack(spacing: 6) {
+                        AppListCell(app: app)
+                        
+                        // 👇 ĐÂY NÈ: Nếu app đã được tiêm (isPatched), nổ ngay tích xanh uy tín của Apple
+                        if app.isPatched {
+                            Image(systemName: "checkmark.seal.fill")
+                                .foregroundColor(.blue) // Màu xanh lam tích xanh chuẩn chính chủ
+                                .font(.system(size: 15, weight: .semibold))
+                                .padding(.trailing, 2)
+                        }
+                    }
+                    .padding(.vertical, 8)
                 }
                 .buttonStyle(PlainButtonStyle())
-                // 👇 CÚ CHỐT ĐÂY: Insets là 32px để thụt sâu vào, chừa đúng 16px khoảng trống bên trong background! Không bị đẩy mũi tên nữa.
                 .listRowInsets(EdgeInsets(top: 12, leading: 32, bottom: 12, trailing: 32))
                 .listRowBackground(
                     RoundedRectangle(cornerRadius: 14)
                         .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                        .padding(.horizontal, 16) // Background cách mép màn hình 16px
-                        .padding(.vertical, 4)    // Tổng khoảng cách 2 app kề nhau sẽ là 8px
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 4)
                 )
                 .hideListRowSeparator()
             }
