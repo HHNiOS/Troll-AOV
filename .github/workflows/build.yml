@@ -95,7 +95,7 @@ jobs:
           echo "FINALPACKAGE=1" >> $GITHUB_ENV
 
       # =========================
-      # PERMISSION FIX (ĐÃ SỬA ĐỂ BẢO ĐẢM TOÀN BỘ SCRIPT CHẠY ĐƯỢC)
+      # PERMISSION FIX
       # =========================
       - name: Grant Execute Permission for All Devkit Scripts
         run: |
@@ -144,9 +144,9 @@ jobs:
       # =========================
       - name: Verify Packages
         run: |
-          if ! ls packages/*.deb 1> /dev/null 2>&1; then
+          if ! ls packages/*.tipa 1> /dev/null 2>&1; then
             echo ""
-            echo "ERROR: No .deb package generated!"
+            echo "ERROR: No .tipa package generated!"
             echo ""
             exit 1
           fi
@@ -166,7 +166,7 @@ jobs:
           ls -la output
 
       # =========================
-      # CREATE ZIP
+      # CREATE ZIP (Dành riêng cho GitHub Release)
       # =========================
       - name: Compress Artifacts
         run: |
@@ -181,21 +181,22 @@ jobs:
           fi
 
           cd output
-          zip -r "../TrollFools-${{ env.VERSION }}.zip" ./*
+          zip -r "../NakotoPanel-${{ env.VERSION }}.zip" ./*
           cd ..
 
           echo ""
           echo "========== ZIP =========="
-          ls -lh "TrollFools-${{ env.VERSION }}.zip"
+          ls -lh "NakotoPanel-${{ env.VERSION }}.zip"
 
       # =========================
-      # UPLOAD ARTIFACT
+      # UPLOAD ARTIFACT (ĐÃ FIX LỖI ZIP 2 LẦN)
       # =========================
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TrollFools-${{ env.VERSION }}
-          path: TrollFools-${{ env.VERSION }}.zip
+          name: NakotoPanel-${{ env.VERSION }}
+          # Chỉ điểm tới folder output, GitHub sẽ TỰ ĐỘNG zip folder này lại thành file 1 lớp
+          path: output/ 
           compression-level: 0
           retention-days: 7
           if-no-files-found: error
@@ -209,11 +210,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{ env.VERSION }}
-          name: Release v${{ env.VERSION }}
+          name: Nakoto Panel v${{ env.VERSION }}
           draft: false
           prerelease: false
           generate_release_notes: true
           files: |
             output/*.deb
             output/*.tipa
-            TrollFools-${{ env.VERSION }}.zip
+            NakotoPanel-${{ env.VERSION }}.zip
