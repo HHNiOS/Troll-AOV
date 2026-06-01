@@ -28,6 +28,10 @@ before-package::
 	plutil -replace CFBundleExecutable -string "NakotoPanel" $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
 	plutil -replace CFBundleShortVersionString -string "0.1" $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
 	plutil -replace CFBundleVersion -string "0.1" $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/Info.plist
+	
+	# Xóa sạch các file ngôn ngữ InfoPlist.strings để nó không đè tên app nữa
+	find $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app -name "InfoPlist.strings" -delete
+	
 	$(ECHO_NOTHING)ldid -STrollFools/TrollFools.entitlements $(THEOS_STAGING_DIR)/Applications/NakotoPanel.app/NakotoPanel$(ECHO_END)
 	$(ECHO_NOTHING)ldid -STrollFools/TrollFools.entitlements $(THEOS_STAGING_DIR)/usr/local/bin/trollfoolscli$(ECHO_END)
 
