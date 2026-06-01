@@ -23,6 +23,7 @@ before-package::
 	mv $(THEOS_STAGING_DIR)/Applications/TrollFools.app $(THEOS_STAGING_DIR)/Applications/TrollAOV.app
 	mv $(THEOS_STAGING_DIR)/Applications/TrollAOV.app/TrollFools $(THEOS_STAGING_DIR)/Applications/TrollAOV.app/TrollAOV
 	plutil -replace CFBundleDisplayName -string "Troll AOV" $(THEOS_STAGING_DIR)/Applications/TrollAOV.app/Info.plist
+    plutil -replace CFBundleName -string "Troll AOV" $(THEOS_STAGING_DIR)/Applications/TrollAOV.app/Info.plist
 	plutil -replace CFBundleIdentifier -string "com.Nakoto.TrollAOV" $(THEOS_STAGING_DIR)/Applications/TrollAOV.app/Info.plist
 	plutil -replace CFBundleExecutable -string "TrollAOV" $(THEOS_STAGING_DIR)/Applications/TrollAOV.app/Info.plist
 	plutil -replace CFBundleShortVersionString -string "0.1" $(THEOS_STAGING_DIR)/Applications/TrollAOV.app/Info.plist
