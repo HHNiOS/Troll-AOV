@@ -288,7 +288,7 @@ struct AppListView: View {
     @available(iOS 15.0, *)
     var advertisementSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(NSLocalizedString("💎 Premium & Support", comment: ""))
+            Text(NSLocalizedString("Buy Key & Support", comment: ""))
                 .textCase(.uppercase)
                 .font(.footnote.weight(.bold))
                 .foregroundColor(.secondary)
