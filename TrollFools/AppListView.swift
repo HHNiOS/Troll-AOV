@@ -262,13 +262,11 @@ struct AppListView: View {
     var appSections: some View {
         ForEach(Array(appList.activeScopeApps.keys), id: \.self) { sectionKey in
             ForEach(appList.activeScopeApps[sectionKey] ?? [], id: \.bid) { app in
-                // Tách hàm riêng cho nhẹ đầu Compiler
                 appRow(for: app)
             }
         }
     }
     
-    // Tách riêng cục UI của từng App ra để tránh lỗi Type-Check Timeout
     @ViewBuilder
     private func appRow(for app: App) -> some View {
         NavigationLink {
@@ -281,7 +279,8 @@ struct AppListView: View {
             HStack(spacing: 6) {
                 AppListCell(app: app)
                 
-                if app.isPatched {
+                // Đã sử dụng đúng tên biến của TrollFools
+                if app.hasInjectedPlugIns {
                     Image(systemName: "checkmark.seal.fill")
                         .foregroundColor(.blue)
                         .font(.system(size: 15, weight: .semibold))
