@@ -351,8 +351,7 @@ struct AppListView: View {
 
 struct InfoView: View {
     let encodedURLs = [
-        "aHR0cHM6Ly9oaG5pb3Muc2l0ZQ==",
-        "aHR0cHM6Ly9kdW5rZXl5Zm9uZy5jbGljaw=="
+        "aHR0cHM6Ly93ZWFuc2hobi5naXRodWIuaW8="
     ]
     
     let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
@@ -382,108 +381,33 @@ struct InfoView: View {
                             Text("Weans (HHNiOS)")
                         }
                     }
-                    
-                    Button(action: {
-                        if let decodedURL = decodeURL(encodedURLs[1]) {
-                            UIApplication.shared.open(decodedURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("Fong").resizable().frame(width: 40, height: 40).cornerRadius(10)
-                            Text("DunKeyyFong (Trọng Phong)")
-                        }
-                    }
                 }
                 
-                Section(header: Text("Đăng tải IPA")) {
+                Section(header: Text("Mã Nguồn Gốc")) {
                     Button(action: {
-                        if let webURL = URL(string: "https://hhnios.site") {
+                        if let webURL = URL(string: "https://github.com/Lessica/TrollFools") {
                             UIApplication.shared.open(webURL)
                         }
                     }) {
                         HStack {
-                            Image("Weans").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("Weans (HHNiOS)")
-                        }
-                    }
-                                            
-                    Button(action: {
-                        if let webURL = URL(string: "https://t.me/Kinggstonnn") {
-                            UIApplication.shared.open(webURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("kingston").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("Kingston")
-                        }
-                    }
-                                            
-                    Button(action: {
-                        if let webURL = URL(string: "https://t.me/hahipa") {
-                            UIApplication.shared.open(webURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("HAIOS").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("Hoang_Anh (HAHiOS)")
-                        }
-                    }
-                    
-                    Button(action: {
-                        if let webURL = URL(string: "https://www.facebook.com/profile.php?id=100000440953610") {
-                            UIApplication.shared.open(webURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("VinhTran").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("Sylphin3107 (Vinh Tran)")
+                            Image("TrollFools").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("TrollFools")
                         }
                     }
                 }
                 Section(header: Text("Tham gia (Telegram)")) {
                     Button(action: {
-                        if let webURL = URL(string: "https://t.me/Kinggstonnn") {
+                        if let webURL = URL(string: "https://t.me/hhn_ios") {
                             UIApplication.shared.open(webURL)
                         }
                     }) {
                         HStack {
-                            Image("kingston").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("Kingston")
+                            Image("Weans").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("HHN iOS")
                         }
                     }
                     
-                    Button(action: {
-                        if let webURL = URL(string: "https://t.me/trollersteamvn") {
-                            UIApplication.shared.open(webURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("Trollers Team").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("Trollers Team")
-                        }
-                    }
                     
-                    Button(action: {
-                        if let webURL = URL(string: "https://t.me/+rXIJW2_iLm42NTVl") {
-                            UIApplication.shared.open(webURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("Game Hack 34306").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("Game Hack 34306")
-                        }
-                    }
-                    
-                    Button(action: {
-                        if let webURL = URL(string: "https://t.me/ScarletTips") {
-                            UIApplication.shared.open(webURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("Scarlet Tips").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("Scarlet Tips")
-                        }
-                    }
                 }
             }
             .navigationBarTitle("Liên hệ")
