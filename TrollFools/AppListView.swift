@@ -24,7 +24,6 @@ struct AppListView: View {
     @State var isWarningPresented = false
     @State var temporaryOpenedURL: URLIdentifiable? = nil
     
-    // Đã thêm state này để quản lý sheet
     @State private var isInfoSheetPresented = false
 
     @AppStorage("isAdvertisementHiddenV2")
@@ -158,7 +157,6 @@ struct AppListView: View {
         .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Nakoto Panel", comment: ""))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            // Nút info góc trái
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
                     isInfoSheetPresented = true
@@ -176,10 +174,9 @@ struct AppListView: View {
                 }
             }
         }
-        // Gắn sheet ở đây
         .sheet(isPresented: $isInfoSheetPresented) {
             InfoView()
-                .presentationDetents([.medium, .large])
+                .applyPresentationDetents()
         }
     }
 
@@ -353,7 +350,6 @@ struct AppListView: View {
     }
 }
 
-// View chứa nội dung sheet
 struct InfoView: View {
     var body: some View {
         VStack(spacing: 20) {
@@ -380,6 +376,14 @@ extension View {
     @ViewBuilder func hideListRowSeparator() -> some View {
         if #available(iOS 15.0, *) {
             self.listRowSeparator(.hidden)
+        } else {
+            self
+        }
+    }
+    
+    @ViewBuilder func applyPresentationDetents() -> some View {
+        if #available(iOS 16.0, *) {
+            self.presentationDetents([.medium, .large])
         } else {
             self
         }
