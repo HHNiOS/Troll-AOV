@@ -157,7 +157,8 @@ struct AppListView: View {
         .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Nakoto Panel", comment: ""))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            // Nút info chuyển sang góc phải
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     isInfoSheetPresented = true
                 } label: {
