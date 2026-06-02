@@ -23,7 +23,6 @@ struct AppListView: View {
     @State var selectorOpenedURL: URLIdentifiable? = nil
     @State var isWarningPresented = false
     @State var temporaryOpenedURL: URLIdentifiable? = nil
-    
     @State private var isInfoSheetPresented = false
 
     @AppStorage("isAdvertisementHiddenV2")
@@ -157,7 +156,6 @@ struct AppListView: View {
         .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Nakoto Panel", comment: ""))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            // Nút info chuyển sang góc phải
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
                     isInfoSheetPresented = true
@@ -352,16 +350,144 @@ struct AppListView: View {
 }
 
 struct InfoView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Thông tin hệ thống")
-                .font(.title2)
-                .fontWeight(.bold)
-            Text("Đây là nơi bạn có thể thêm thông tin cần thiết, hướng dẫn hoặc contact bot.")
-                .multilineTextAlignment(.center)
-            Spacer()
+    let encodedURLs = [
+        "aHR0cHM6Ly9oaG5pb3Muc2l0ZQ==",
+        "aHR0cHM6Ly9kdW5rZXl5Zm9uZy5jbGljaw=="
+    ]
+    
+    let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+
+    func decodeURL(_ encodedURL: String) -> URL? {
+        guard let data = Data(base64Encoded: encodedURL),
+              let decodedString = String(data: data, encoding: .utf8) else {
+            return nil
         }
-        .padding()
+        return URL(string: decodedString)
+    }
+
+    var body: some View {
+        NavigationView {
+            List {
+                Section(header: Text("Phiên bản")){
+                    Text("Phiên bản: \(appVersion)")
+                }
+                Section(header: Text("Phát triển")) {
+                    Button(action: {
+                        if let decodedURL = decodeURL(encodedURLs[0]) {
+                            UIApplication.shared.open(decodedURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("Weans").resizable().frame(width: 40, height: 40).cornerRadius(10)
+                            Text("Weans (HHNiOS)")
+                        }
+                    }
+                    
+                    Button(action: {
+                        if let decodedURL = decodeURL(encodedURLs[1]) {
+                            UIApplication.shared.open(decodedURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("Fong").resizable().frame(width: 40, height: 40).cornerRadius(10)
+                            Text("DunKeyyFong (Trọng Phong)")
+                        }
+                    }
+                }
+                
+                Section(header: Text("Đăng tải IPA")) {
+                    Button(action: {
+                        if let webURL = URL(string: "https://hhnios.site") {
+                            UIApplication.shared.open(webURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("Weans").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("Weans (HHNiOS)")
+                        }
+                    }
+                                            
+                    Button(action: {
+                        if let webURL = URL(string: "https://t.me/Kinggstonnn") {
+                            UIApplication.shared.open(webURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("kingston").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("Kingston")
+                        }
+                    }
+                                            
+                    Button(action: {
+                        if let webURL = URL(string: "https://t.me/hahipa") {
+                            UIApplication.shared.open(webURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("HAIOS").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("Hoang_Anh (HAHiOS)")
+                        }
+                    }
+                    
+                    Button(action: {
+                        if let webURL = URL(string: "https://www.facebook.com/profile.php?id=100000440953610") {
+                            UIApplication.shared.open(webURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("VinhTran").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("Sylphin3107 (Vinh Tran)")
+                        }
+                    }
+                }
+                Section(header: Text("Tham gia (Telegram)")) {
+                    Button(action: {
+                        if let webURL = URL(string: "https://t.me/Kinggstonnn") {
+                            UIApplication.shared.open(webURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("kingston").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("Kingston")
+                        }
+                    }
+                    
+                    Button(action: {
+                        if let webURL = URL(string: "https://t.me/trollersteamvn") {
+                            UIApplication.shared.open(webURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("Trollers Team").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("Trollers Team")
+                        }
+                    }
+                    
+                    Button(action: {
+                        if let webURL = URL(string: "https://t.me/+rXIJW2_iLm42NTVl") {
+                            UIApplication.shared.open(webURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("Game Hack 34306").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("Game Hack 34306")
+                        }
+                    }
+                    
+                    Button(action: {
+                        if let webURL = URL(string: "https://t.me/ScarletTips") {
+                            UIApplication.shared.open(webURL)
+                        }
+                    }) {
+                        HStack {
+                            Image("Scarlet Tips").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                            Text("Scarlet Tips")
+                        }
+                    }
+                }
+            }
+            .navigationBarTitle("Liên hệ")
+        }
     }
 }
 
