@@ -23,6 +23,9 @@ struct AppListView: View {
     @State var selectorOpenedURL: URLIdentifiable? = nil
     @State var isWarningPresented = false
     @State var temporaryOpenedURL: URLIdentifiable? = nil
+    
+    // Đã thêm state này để quản lý sheet
+    @State private var isInfoSheetPresented = false
 
     @AppStorage("isAdvertisementHiddenV2")
     var isAdvertisementHidden: Bool = false
@@ -75,7 +78,6 @@ struct AppListView: View {
     var content: some View {
         styledNavigationView
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: appList.activeScopeApps.keys)
-            // Đã xoá đoạn .sheet và .onOpenURL ở đây cho mượt!
             .onAppear {
                 UITableView.appearance().backgroundColor = .clear
                 UITableView.appearance().separatorStyle = .none
@@ -156,6 +158,15 @@ struct AppListView: View {
         .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Nakoto Panel", comment: ""))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
+            // Nút info góc trái
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    isInfoSheetPresented = true
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+            }
+            
             ToolbarItem(placement: .principal) {
                 if appList.isSelectorMode, let selectorURL = appList.selectorURL {
                     VStack(spacing: 4) {
@@ -164,6 +175,11 @@ struct AppListView: View {
                     }
                 }
             }
+        }
+        // Gắn sheet ở đây
+        .sheet(isPresented: $isInfoSheetPresented) {
+            InfoView()
+                .presentationDetents([.medium, .large])
         }
     }
 
@@ -334,6 +350,21 @@ struct AppListView: View {
             try FileManager.default.copyItem(at: url, to: newURL)
             return newURL
         } catch { return url }
+    }
+}
+
+// View chứa nội dung sheet
+struct InfoView: View {
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Thông tin hệ thống")
+                .font(.title2)
+                .fontWeight(.bold)
+            Text("Đây là nơi bạn có thể thêm thông tin cần thiết, hướng dẫn hoặc contact bot.")
+                .multilineTextAlignment(.center)
+            Spacer()
+        }
+        .padding()
     }
 }
 
