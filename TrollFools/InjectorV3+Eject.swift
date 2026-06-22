@@ -86,8 +86,11 @@ extension InjectorV3 {
         }
 
         if !hasInjectedAsset {
-            try targetURLs.forEach { try restoreAlternate($0) }
-
+            try targetURLs.forEach { 
+                try restoreAlternate($0) 
+        
+                try cmdChangeOwnerToInstalld($0, recursively: true) 
+            }
             let substrateFwkURL = bundleURL.appendingPathComponent("Frameworks/\(Self.substrateFwkName)", isDirectory: true)
             try? cmdRemove(substrateFwkURL, recursively: true)
         }
