@@ -27,7 +27,7 @@ extension InjectorV3 {
         guard !hasAlternate(target) else { return }
         let alternateURL = Self.alternateURL(for: target)
     
-        try AuxiliaryExecute.local.execute(command: "cp -a \"\(target.path)\" \"\(alternateURL.path)\"")
+        try cmdCopy(from: target, to: alternateURL, clone: true, overwrite: true)
     }
 
     func removeAlternate(_ target: URL) throws {
@@ -42,9 +42,7 @@ extension InjectorV3 {
         guard hasAlternate(target) else { return }
         let alternateURL = Self.alternateURL(for: target)
     
-        try? FileManager.default.removeItem(at: target)
-    
-        try AuxiliaryExecute.local.execute(command: "cp -a \"\(alternateURL.path)\" \"\(target.path)\"")
+        try cmdCopy(from: alternateURL, to: target, clone: true, overwrite: true)
     
         try cmdChangeOwnerToInstalld(target, recursively: true)
     }
