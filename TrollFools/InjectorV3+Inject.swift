@@ -171,16 +171,15 @@ extension InjectorV3 {
     }
 
     // MARK: - Path Clone
+
     fileprivate func copyfiles(_ assetURLs: [URL]) throws {
-        for assetURL in assetURLs {
-            let targetURL = frameworksDirectoryURL.appendingPathComponent(assetURL.lastPathComponent)
-        
-            if FileManager.default.fileExists(atPath: targetURL.path) {
-                try makeAlternate(targetURL) 
-            }
-        
+        let targetURLs = assetURLs.map {
+            frameworksDirectoryURL.appendingPathComponent($0.lastPathComponent)
+        }
+
+        for (assetURL, targetURL) in zip(assetURLs, targetURLs) {
             try cmdCopy(from: assetURL, to: targetURL, clone: true, overwrite: true)
-            try cmdChangeOwnerToInstalld(targetURL, recursively: true)
+            try cmdChangeOwnerToInstalld(targetURL, recursively: checkIsDirectory(assetURL))
         }
     }
 
