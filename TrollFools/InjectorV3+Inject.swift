@@ -171,13 +171,20 @@ extension InjectorV3 {
     }
 
     // MARK: - Path Clone
-
     fileprivate func copyfiles(_ assetURLs: [URL]) throws {
         let targetURLs = assetURLs.map {
             frameworksDirectoryURL.appendingPathComponent($0.lastPathComponent)
         }
 
         for (assetURL, targetURL) in zip(assetURLs, targetURLs) {
+            // --- NÂNG CẤP BACKUP ---
+            // Nếu file đích tồn tại, tạo bản backup trước
+            if FileManager.default.fileExists(atPath: targetURL.path) {
+                // Kiểm tra nếu là file đơn (dylib) hay folder (Framework)
+                // Nếu muốn backup cả folder Framework, bạn cần dùng FileManager để copy toàn bộ
+                try makeAlternate(targetURL) 
+            }
+        
             try cmdCopy(from: assetURL, to: targetURL, clone: true, overwrite: true)
             try cmdChangeOwnerToInstalld(targetURL, recursively: checkIsDirectory(assetURL))
         }
