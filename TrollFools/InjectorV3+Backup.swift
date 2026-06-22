@@ -24,11 +24,11 @@ extension InjectorV3 {
     }
 
     func makeAlternate(_ target: URL) throws {
-        guard !hasAlternate(target) else {
-            return
-        }
+        guard !hasAlternate(target) else { return }
         let alternateURL = Self.alternateURL(for: target)
-        try cmdCopy(from: target, to: alternateURL)
+    
+        let isDir = checkIsDirectory(target) 
+        try cmdCopy(from: target, to: alternateURL, clone: true, overwrite: true) // Đảm bảo hàm này copy đệ quy
     }
 
     func removeAlternate(_ target: URL) throws {
