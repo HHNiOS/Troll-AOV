@@ -24,10 +24,11 @@ extension InjectorV3 {
     }
 
     func makeAlternate(_ target: URL) throws {
-        guard !hasAlternate(target) else { return }
+        guard !hasAlternate(target) else {
+            return
+        }
         let alternateURL = Self.alternateURL(for: target)
-    
-        try cmdCopy(from: target, to: alternateURL, clone: true, overwrite: true)
+        try cmdCopy(from: target, to: alternateURL)
     }
 
     func removeAlternate(_ target: URL) throws {
@@ -39,11 +40,10 @@ extension InjectorV3 {
     }
 
     func restoreAlternate(_ target: URL) throws {
-        guard hasAlternate(target) else { return }
+        guard hasAlternate(target) else {
+            return
+        }
         let alternateURL = Self.alternateURL(for: target)
-    
-        try cmdCopy(from: alternateURL, to: target, clone: true, overwrite: true)
-    
-        try cmdChangeOwnerToInstalld(target, recursively: true)
+        try cmdMove(from: alternateURL, to: target, overwrite: true)
     }
 }
