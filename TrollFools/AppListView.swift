@@ -3,7 +3,7 @@
 //  TrollFools
 //
 //  Created by Lessica on 2024/7/19.
-//  UI Upgraded 🚀 (Full Bleed Background)
+//  UI Upgraded 🚀 (Glassmorphism & Modern Aesthetic by HHNiOS)
 //
 
 import CocoaLumberjackSwift
@@ -41,12 +41,13 @@ struct AppListView: View {
 
     var body: some View {
         ZStack {
+            // Background Anime với hiệu ứng Blur nhẹ để làm nổi bật UI bên trên
             Image("anime_bg")
                 .resizable()
                 .scaledToFill()
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                 .ignoresSafeArea()
-                .opacity(0.4)
+                .opacity(0.6)
             
             if #available(iOS 15, *) {
                 content
@@ -158,15 +159,19 @@ struct AppListView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
+                    let generator = UIImpactFeedbackGenerator(style: .light)
+                    generator.impactOccurred()
                     isInfoSheetPresented = true
                 } label: {
-                    Image(systemName: "info.circle")
+                    Image(systemName: "sparkles.rectangle.stack.fill")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(LinearGradient(colors: [.cyan, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
                 }
             }
             
             ToolbarItem(placement: .principal) {
                 if appList.isSelectorMode, let selectorURL = appList.selectorURL {
-                    VStack(spacing: 4) {
+                    VStack(spacing: 2) {
                         Text(selectorURL.lastPathComponent).font(.subheadline).fontWeight(.bold)
                         Text(NSLocalizedString("Select Application to Inject", comment: "")).font(.caption2).foregroundColor(.secondary)
                     }
@@ -191,9 +196,16 @@ struct AppListView: View {
         if AppListModel.hasTrollStore && appList.isRebuildNeeded {
             rebuildButton
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                .cornerRadius(14)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(LinearGradient(colors: [.blue.opacity(0.5), .purple.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                        )
+                        .shadow(color: .blue.opacity(0.15), radius: 12, x: 0, y: 6)
+                )
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
                 .padding(.bottom, 8)
@@ -206,7 +218,7 @@ struct AppListView: View {
         if !appList.filter.isSearching && !appList.filter.showPatchedOnly && !appList.isRebuildNeeded {
             if appList.activeScope == .system {
                 Text(NSLocalizedString("Only removable system applications are eligible and listed.", comment: ""))
-                    .font(.footnote)
+                    .font(.footnote.weight(.medium))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 8)
@@ -216,7 +228,7 @@ struct AppListView: View {
                     .transition(.opacity)
             } else if appList.activeScope != .troll && appList.unsupportedCount > 0 {
                 Text(String(format: NSLocalizedString("And %d more unsupported user applications.", comment: ""), appList.unsupportedCount))
-                    .font(.footnote)
+                    .font(.footnote.weight(.medium))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 8)
@@ -237,19 +249,28 @@ struct AppListView: View {
             HStack(spacing: 16) {
                 if #available(iOS 15.0, *) {
                     Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
-                        .font(.system(size: 32, weight: .semibold))
-                        .foregroundStyle(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .font(.system(size: 34, weight: .bold))
+                        .foregroundStyle(LinearGradient(colors: [.cyan, .blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .shadow(color: .blue.opacity(0.3), radius: 5, x: 0, y: 3)
                 } else {
                     Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
-                        .font(.system(size: 32, weight: .semibold))
+                        .font(.system(size: 34, weight: .bold))
                         .foregroundColor(.blue)
                 }
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(NSLocalizedString("Rebuild Icon Cache", comment: "")).font(.headline).fontWeight(.bold).foregroundColor(.primary)
-                    Text(NSLocalizedString("Rebuild cache in TrollStore to apply changes.", comment: "")).font(.subheadline).foregroundColor(.secondary).lineLimit(2)
+                    Text(NSLocalizedString("Rebuild Icon Cache", comment: ""))
+                        .font(.headline)
+                        .fontWeight(.heavy)
+                        .foregroundColor(.primary)
+                    Text(NSLocalizedString("Rebuild cache in TrollStore to apply changes.", comment: ""))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
                 }
                 Spacer()
-                Image(systemName: "chevron.right.circle.fill").font(.title3).foregroundColor(Color(UIColor.tertiaryLabel))
+                Image(systemName: "chevron.right.circle.fill")
+                    .font(.title3)
+                    .foregroundColor(.secondary.opacity(0.7))
             }
         }
     }
@@ -267,12 +288,25 @@ struct AppListView: View {
                     AppListCell(app: app)
                 }
                 .buttonStyle(PlainButtonStyle())
-                .listRowInsets(EdgeInsets(top: 12, leading: 32, bottom: 12, trailing: 32))
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 .listRowBackground(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
-                        .padding(.horizontal, 16) 
-                        .padding(.vertical, 4)    
+                    // Kính mờ siêu sang + viền gradient nhạt + bóng đổ sâu
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(.ultraThinMaterial)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.3), .white.opacity(0.05), .clear],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
+                        )
+                        .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 2)
                 )
                 .hideListRowSeparator()
             }
@@ -281,11 +315,11 @@ struct AppListView: View {
 
     @available(iOS 15.0, *)
     var advertisementSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(NSLocalizedString("BUY KEY & SUPPORT", comment: ""))
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("⚡ KEY & SUPPORT", comment: ""))
                 .textCase(.uppercase)
-                .font(.footnote.weight(.bold))
-                .foregroundColor(.secondary)
+                .font(.caption.weight(.heavy))
+                .foregroundStyle(LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing))
                 .padding(.leading, 8)
             
             Button {
@@ -296,26 +330,29 @@ struct AppListView: View {
                         .padding(.vertical, 4)
                     Spacer()
                     Image(systemName: "cart.fill")
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.white)
-                        .padding(8)
-                        .background(LinearGradient(colors: [.orange, .red], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .padding(12)
+                        .background(LinearGradient(colors: [.orange, .red, .pink], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .clipShape(Circle())
+                        .shadow(color: .orange.opacity(0.4), radius: 6, x: 0, y: 3)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.vertical, 10)
                 .background(
-                    RoundedRectangle(cornerRadius: 14)
-                        .fill(Color(UIColor.secondarySystemGroupedBackground))
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(.ultraThinMaterial)
                         .overlay(
-                            LinearGradient(colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)], startPoint: .leading, endPoint: .trailing)
-                                .clipShape(RoundedRectangle(cornerRadius: 14))
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(LinearGradient(colors: [.orange.opacity(0.6), .red.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
                         )
+                        .shadow(color: .orange.opacity(0.15), radius: 10, x: 0, y: 5)
                 )
             }
             .buttonStyle(PlainButtonStyle())
             
             Text(NSLocalizedString("Buy keys through my Mini App bot!!", comment: ""))
-                .font(.footnote)
+                .font(.caption2.weight(.semibold))
                 .foregroundColor(.secondary)
                 .padding(.leading, 8)
         }
@@ -349,6 +386,7 @@ struct AppListView: View {
     }
 }
 
+// MARK: - Modern InfoSheet View
 struct InfoView: View {
     let encodedURLs = [
         "aHR0cHM6Ly93ZWFuc2hobi5naXRodWIuaW8="
@@ -366,52 +404,107 @@ struct InfoView: View {
 
     var body: some View {
         NavigationView {
-            List {
-                Section(header: Text("Phiên bản")){
-                    Text("Phiên bản: \(appVersion)")
-                }
-                Section(header: Text("Phát triển")) {
-                    Button(action: {
-                        if let decodedURL = decodeURL(encodedURLs[0]) {
-                            UIApplication.shared.open(decodedURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("Weans").resizable().frame(width: 40, height: 40).cornerRadius(10)
-                            Text("Weans (HHNiOS)")
-                        }
-                    }
-                }
+            ZStack {
+                Color(UIColor.systemGroupedBackground).ignoresSafeArea()
                 
-                Section(header: Text("Mã Nguồn Gốc")) {
-                    Button(action: {
-                        if let webURL = URL(string: "https://github.com/Lessica/TrollFools") {
-                            UIApplication.shared.open(webURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("TrollFools").resizable().frame(width: 40,height: 40).cornerRadius(10)
-                            Text("TrollFools")
-                        }
-                    }
-                }
-                Section(header: Text("Tham gia (Telegram)")) {
-                    Button(action: {
-                        if let webURL = URL(string: "https://t.me/hhn_ios") {
-                            UIApplication.shared.open(webURL)
-                        }
-                    }) {
-                        HStack {
-                            Image("Weans").resizable().frame(width: 40,height: 40).cornerRadius(10)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Header Banner
+                        VStack(spacing: 12) {
+                            Image("Weans")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 80, height: 80)
+                                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                                .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                        .stroke(LinearGradient(colors: [.cyan, .purple], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 2)
+                                )
+                            
                             Text("HHN iOS")
+                                .font(.title2.weight(.heavy))
+                                .foregroundStyle(LinearGradient(colors: [.primary, .secondary], startPoint: .top, endPoint: .bottom))
+                            
+                            Text("Phiên bản \(appVersion)")
+                                .font(.caption.weight(.bold))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 4)
+                                .background(Capsule().fill(Color.secondary.opacity(0.15)))
                         }
+                        .padding(.top, 20)
+
+                        // Action Cards
+                        VStack(spacing: 12) {
+                            InfoCardButton(title: "Weans (HHNiOS)", subtitle: "Nhà phát triển & Modder", icon: "person.crop.circle.fill", gradient: [.blue, .cyan], image: "Weans") {
+                                if let decodedURL = decodeURL(encodedURLs[0]) {
+                                    UIApplication.shared.open(decodedURL)
+                                }
+                            }
+                            
+                            InfoCardButton(title: "TrollFools", subtitle: "Mã nguồn gốc (Github)", icon: "chevron.left.forwardslash.chevron.right", gradient: [.purple, .pink], image: "TrollFools") {
+                                if let webURL = URL(string: "https://github.com/Lessica/TrollFools") {
+                                    UIApplication.shared.open(webURL)
+                                }
+                            }
+                            
+                            InfoCardButton(title: "Cộng đồng Telegram", subtitle: "Tham gia nhóm HHN iOS", icon: "paperplane.fill", gradient: [.blue, .indigo], image: "Weans") {
+                                if let webURL = URL(string: "https://t.me/hhn_ios") {
+                                    UIApplication.shared.open(webURL)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 16)
                     }
-                    
-                    
+                    .padding(.bottom, 30)
                 }
             }
-            .navigationBarTitle("Liên hệ")
+            .navigationBarTitle("Thông tin & Liên hệ", displayMode: .inline)
         }
+    }
+}
+
+struct InfoCardButton: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let gradient: [Color]
+    let image: String
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Image(image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(.headline.weight(.bold))
+                        .foregroundColor(.primary)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "arrow.up.right.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing))
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
