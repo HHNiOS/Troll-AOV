@@ -41,7 +41,6 @@ struct AppListView: View {
 
     var body: some View {
         ZStack {
-            // Background Anime với hiệu ứng Blur nhẹ để làm nổi bật UI bên trên
             Image("anime_bg")
                 .resizable()
                 .scaledToFill()
@@ -165,7 +164,7 @@ struct AppListView: View {
                 } label: {
                     Image(systemName: "sparkles.rectangle.stack.fill")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(LinearGradient(colors: [.cyan, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .foregroundColor(.blue)
                 }
             }
             
@@ -199,7 +198,7 @@ struct AppListView: View {
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 18)
-                        .fill(.ultraThinMaterial)
+                        .applyGlassMaterial()
                         .overlay(
                             RoundedRectangle(cornerRadius: 18)
                                 .stroke(LinearGradient(colors: [.blue.opacity(0.5), .purple.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
@@ -247,16 +246,11 @@ struct AppListView: View {
             appList.rebuildIconCache()
         } label: {
             HStack(spacing: 16) {
-                if #available(iOS 15.0, *) {
-                    Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
-                        .font(.system(size: 34, weight: .bold))
-                        .foregroundStyle(LinearGradient(colors: [.cyan, .blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .shadow(color: .blue.opacity(0.3), radius: 5, x: 0, y: 3)
-                } else {
-                    Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
-                        .font(.system(size: 34, weight: .bold))
-                        .foregroundColor(.blue)
-                }
+                Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
+                    .font(.system(size: 34, weight: .bold))
+                    .foregroundColor(.blue)
+                    .shadow(color: .blue.opacity(0.3), radius: 5, x: 0, y: 3)
+                
                 VStack(alignment: .leading, spacing: 4) {
                     Text(NSLocalizedString("Rebuild Icon Cache", comment: ""))
                         .font(.headline)
@@ -290,9 +284,8 @@ struct AppListView: View {
                 .buttonStyle(PlainButtonStyle())
                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 .listRowBackground(
-                    // Kính mờ siêu sang + viền gradient nhạt + bóng đổ sâu
                     RoundedRectangle(cornerRadius: 18)
-                        .fill(.ultraThinMaterial)
+                        .applyGlassMaterial()
                         .overlay(
                             RoundedRectangle(cornerRadius: 18)
                                 .stroke(
@@ -319,7 +312,7 @@ struct AppListView: View {
             Text(NSLocalizedString("⚡ KEY & SUPPORT", comment: ""))
                 .textCase(.uppercase)
                 .font(.caption.weight(.heavy))
-                .foregroundStyle(LinearGradient(colors: [.orange, .red], startPoint: .leading, endPoint: .trailing))
+                .foregroundColor(.orange)
                 .padding(.leading, 8)
             
             Button {
@@ -341,7 +334,7 @@ struct AppListView: View {
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 18)
-                        .fill(.ultraThinMaterial)
+                        .applyGlassMaterial()
                         .overlay(
                             RoundedRectangle(cornerRadius: 18)
                                 .stroke(LinearGradient(colors: [.orange.opacity(0.6), .red.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
@@ -409,7 +402,6 @@ struct InfoView: View {
                 
                 ScrollView {
                     VStack(spacing: 20) {
-                        // Header Banner
                         VStack(spacing: 12) {
                             Image("Weans")
                                 .resizable()
@@ -419,12 +411,12 @@ struct InfoView: View {
                                 .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                        .stroke(LinearGradient(colors: [.cyan, .purple], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 2)
+                                        .stroke(LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 2)
                                 )
                             
                             Text("HHN iOS")
                                 .font(.title2.weight(.heavy))
-                                .foregroundStyle(LinearGradient(colors: [.primary, .secondary], startPoint: .top, endPoint: .bottom))
+                                .foregroundColor(.primary)
                             
                             Text("Phiên bản \(appVersion)")
                                 .font(.caption.weight(.bold))
@@ -434,9 +426,8 @@ struct InfoView: View {
                         }
                         .padding(.top, 20)
 
-                        // Action Cards
                         VStack(spacing: 12) {
-                            InfoCardButton(title: "Weans (HHNiOS)", subtitle: "Nhà phát triển & Modder", icon: "person.crop.circle.fill", gradient: [.blue, .cyan], image: "Weans") {
+                            InfoCardButton(title: "Weans (HHNiOS)", subtitle: "Nhà phát triển & Modder", icon: "person.crop.circle.fill", gradient: [.blue, .purple], image: "Weans") {
                                 if let decodedURL = decodeURL(encodedURLs[0]) {
                                     UIApplication.shared.open(decodedURL)
                                 }
@@ -448,7 +439,7 @@ struct InfoView: View {
                                 }
                             }
                             
-                            InfoCardButton(title: "Cộng đồng Telegram", subtitle: "Tham gia nhóm HHN iOS", icon: "paperplane.fill", gradient: [.blue, .indigo], image: "Weans") {
+                            InfoCardButton(title: "Cộng đồng Telegram", subtitle: "Tham gia nhóm HHN iOS", icon: "paperplane.fill", gradient: [.blue, .green], image: "Weans") {
                                 if let webURL = URL(string: "https://t.me/hhn_ios") {
                                     UIApplication.shared.open(webURL)
                                 }
@@ -495,7 +486,7 @@ struct InfoCardButton: View {
                 
                 Image(systemName: "arrow.up.right.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .foregroundColor(gradient.first ?? .blue)
             }
             .padding(14)
             .background(
@@ -505,6 +496,17 @@ struct InfoCardButton: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Safe Glass Fallback Extension
+extension Shape {
+    @ViewBuilder func applyGlassMaterial() -> some View {
+        if #available(iOS 15.0, *) {
+            self.fill(.ultraThinMaterial)
+        } else {
+            self.fill(Color(UIColor.secondarySystemGroupedBackground).opacity(0.85))
+        }
     }
 }
 
