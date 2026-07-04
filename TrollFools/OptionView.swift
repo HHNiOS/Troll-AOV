@@ -99,22 +99,22 @@ struct OptionView: View {
             }
             
             // SECTION 2: CÀI ĐẶT NHANH
-            Section {
-                Button {
-                    isSettingsPresented = true
-                } label: {
-                    HStack {
-                        Label(NSLocalizedString("Advanced Settings", comment: ""), systemImage: "gearshape")
-                            .foregroundColor(.primary)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.footnote)
-                            .foregroundColor(Color(.placeholderText))
-                    }
-                }
-            } header: {
-                Text(NSLocalizedString("Preferences", comment: ""))
-            }
+            // Section {
+            //     Button {
+            //         isSettingsPresented = true
+            //     } label: {
+            //         HStack {
+            //             Label(NSLocalizedString("Advanced Settings", comment: ""), systemImage: "gearshape")
+            //                 .foregroundColor(.primary)
+            //             Spacer()
+            //             Image(systemName: "chevron.right")
+            //                 .font(.footnote)
+            //                 .foregroundColor(Color(.placeholderText))
+            //         }
+            //     }
+            // } header: {
+            //     Text(NSLocalizedString("Preferences", comment: ""))
+            // }
         }
         .listStyle(.insetGrouped)
         .navigationTitle(app.name)
