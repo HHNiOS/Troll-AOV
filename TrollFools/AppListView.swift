@@ -3,7 +3,7 @@
 //  TrollFools
 //
 //  Created by Lessica on 2024/7/19.
-//  UI Upgraded 🚀 (Compact Glassmorphism & Perfect Alignment)
+//  UI Upgraded 🚀 (Glassmorphism & Perfectly Aligned Layout by HHNiOS)
 //
 
 import CocoaLumberjackSwift
@@ -194,18 +194,22 @@ struct AppListView: View {
     var topSection: some View {
         if AppListModel.hasTrollStore && appList.isRebuildNeeded {
             rebuildButton
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
                 .background(
-                    RoundedRectangle(cornerRadius: 15)
+                    RoundedRectangle(cornerRadius: 18)
                         .applyGlassMaterial()
                         .overlay(
-                            RoundedRectangle(cornerRadius: 15)
+                            RoundedRectangle(cornerRadius: 18)
                                 .stroke(LinearGradient(colors: [.blue.opacity(0.5), .purple.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
                         )
-                        .shadow(color: .blue.opacity(0.15), radius: 8, x: 0, y: 4)
+                        .shadow(color: .blue.opacity(0.15), radius: 12, x: 0, y: 6)
                 )
-                .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                // Đồng bộ lề ngang chuẩn 18pt
+                .padding(.horizontal, 18)
+                .padding(.top, 16)
+                .padding(.bottom, 8)
+                .listRowInsets(EdgeInsets())
                 .listRowBackground(Color.clear)
                 .hideListRowSeparator()
                 .transition(.scale.combined(with: .opacity))
@@ -217,7 +221,7 @@ struct AppListView: View {
                     .font(.footnote.weight(.medium))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 24)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 8)
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
                     .hideListRowSeparator()
@@ -227,7 +231,7 @@ struct AppListView: View {
                     .font(.footnote.weight(.medium))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 24)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 8)
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
                     .hideListRowSeparator()
@@ -242,25 +246,25 @@ struct AppListView: View {
             generator.impactOccurred()
             appList.rebuildIconCache()
         } label: {
-            HStack(spacing: 14) {
+            HStack(spacing: 16) {
                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
-                    .font(.system(size: 30, weight: .bold))
+                    .font(.system(size: 34, weight: .bold))
                     .foregroundColor(.blue)
-                    .shadow(color: .blue.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .shadow(color: .blue.opacity(0.3), radius: 5, x: 0, y: 3)
                 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(NSLocalizedString("Rebuild Icon Cache", comment: ""))
-                        .font(.subheadline)
+                        .font(.headline)
                         .fontWeight(.heavy)
                         .foregroundColor(.primary)
                     Text(NSLocalizedString("Rebuild cache in TrollStore to apply changes.", comment: ""))
-                        .font(.caption2)
+                        .font(.caption)
                         .foregroundColor(.secondary)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
                 Spacer()
                 Image(systemName: "chevron.right.circle.fill")
-                    .font(.subheadline)
+                    .font(.title3)
                     .foregroundColor(.secondary.opacity(0.7))
             }
         }
@@ -279,13 +283,13 @@ struct AppListView: View {
                     AppListCell(app: app)
                 }
                 .buttonStyle(PlainButtonStyle())
-                // Canh lề chuẩn 16, bóp height gọn lại 5
-                .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
+                // Content inset = 18 (lề ngoài) + 16 (lề trong cell) = 34pt
+                .listRowInsets(EdgeInsets(top: 8, leading: 34, bottom: 8, trailing: 34))
                 .listRowBackground(
-                    RoundedRectangle(cornerRadius: 15)
+                    RoundedRectangle(cornerRadius: 18)
                         .applyGlassMaterial()
                         .overlay(
-                            RoundedRectangle(cornerRadius: 15)
+                            RoundedRectangle(cornerRadius: 18)
                                 .stroke(
                                     LinearGradient(
                                         colors: [.white.opacity(0.3), .white.opacity(0.05), .clear],
@@ -295,7 +299,10 @@ struct AppListView: View {
                                     lineWidth: 1
                                 )
                         )
-                        .shadow(color: .black.opacity(0.1), radius: 6, x: 0, y: 3)
+                        .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+                        // Đồng bộ lề ngang nền chuẩn 18pt (nhỏ gọn hơn bản cũ)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 3)
                 )
                 .hideListRowSeparator()
             }
@@ -304,50 +311,54 @@ struct AppListView: View {
 
     @available(iOS 15.0, *)
     var advertisementSection: some View {
-        Section {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(NSLocalizedString("⚡ KEY & SUPPORT", comment: ""))
+                .textCase(.uppercase)
+                .font(.caption.weight(.heavy))
+                .foregroundColor(.orange)
+                .padding(.leading, 6)
+            
             Button {
                 UIApplication.shared.open(App.advertisementApp.url)
             } label: {
                 HStack(spacing: 12) {
                     AppListCell(app: App.advertisementApp)
+                        .padding(.vertical, 4)
                     Spacer()
                     Image(systemName: "cart.fill")
-                        .font(.system(size: 15, weight: .bold))
+                        .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.white)
-                        .padding(10)
+                        .padding(12)
                         .background(LinearGradient(colors: [.orange, .red, .pink], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .clipShape(Circle())
-                        .shadow(color: .orange.opacity(0.4), radius: 5, x: 0, y: 2)
+                        .shadow(color: .orange.opacity(0.4), radius: 6, x: 0, y: 3)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
+                        .applyGlassMaterial()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(LinearGradient(colors: [.orange.opacity(0.6), .red.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                        )
+                        .shadow(color: .orange.opacity(0.15), radius: 10, x: 0, y: 5)
+                )
             }
             .buttonStyle(PlainButtonStyle())
-            // Dùng chung insets & background với appList để bằng nhau 100%
-            .listRowInsets(EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16))
-            .listRowBackground(
-                RoundedRectangle(cornerRadius: 15)
-                    .applyGlassMaterial()
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 15)
-                            .stroke(LinearGradient(colors: [.orange.opacity(0.6), .red.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
-                    )
-                    .shadow(color: .orange.opacity(0.12), radius: 6, x: 0, y: 3)
-            )
-            .hideListRowSeparator()
-        } header: {
-            HStack {
-                Text(NSLocalizedString("⚡ KEY & SUPPORT", comment: ""))
-                    .textCase(.uppercase)
-                    .font(.caption.weight(.heavy))
-                    .foregroundColor(.orange)
-                Spacer()
-                Text(NSLocalizedString("Buy keys via Mini App!!", comment: ""))
-                    .font(.caption2.weight(.semibold))
-                    .foregroundColor(.secondary)
-            }
-            .padding(.leading, 4)
-            .padding(.trailing, 4)
-            .padding(.bottom, 2)
+            
+            Text(NSLocalizedString("Buy keys through my Mini App bot!!", comment: ""))
+                .font(.caption2.weight(.semibold))
+                .foregroundColor(.secondary)
+                .padding(.leading, 6)
         }
+        // Đồng bộ lề ngang chuẩn 18pt
+        .padding(.horizontal, 18)
+        .padding(.top, 16)
+        .padding(.bottom, 8)
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+        .hideListRowSeparator()
     }
 
     var footer: some View { EmptyView() }
