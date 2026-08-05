@@ -74,22 +74,14 @@ struct OptionView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(PlainButtonStyle())
+                .buttonStyle(PlainButtonStyle())
                 .disabled(isDownloading || isEjecting)
-                .listRowBackground(Color.clear)
-                .hideListRowSeparator()
-                .padding(.horizontal, 18)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 18)
+                .listRowBackground(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .applyGlassMaterial()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18)
-                                .stroke(LinearGradient(colors: [.green.opacity(0.5), .blue.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
-                        )
-                        .shadow(color: .green.opacity(0.15), radius: 12, x: 0, y: 6)
                 )
                 .opacity((isDownloading || isEjecting) ? 0.6 : 1.0)
-                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 
                 // NÚT GỠ TOÀN BỘ TWEAK
                 Button {
@@ -118,27 +110,19 @@ struct OptionView: View {
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(PlainButtonStyle())
+                .buttonStyle(PlainButtonStyle())
                 .disabled(numberOfPlugIns == 0 || isDownloading || isEjecting)
-                .listRowBackground(Color.clear)
-                .hideListRowSeparator()
-                .padding(.horizontal, 18)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 18)
+                .listRowBackground(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .applyGlassMaterial()
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 18)
-                                .stroke(LinearGradient(colors: [.red.opacity(0.5), .orange.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
-                        )
-                        .shadow(color: .red.opacity(0.15), radius: 12, x: 0, y: 6)
                 )
                 .opacity((numberOfPlugIns == 0 || isDownloading || isEjecting) ? 0.6 : 1.0)
-                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
+                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             } header: {
                 Text(NSLocalizedString("Actions", comment: ""))
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.5), radius: 2, x: 0, y: 1)
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+                    .textCase(.uppercase)
             }
             
             // SECTION 2: CÀI ĐẶT NHANH
@@ -159,7 +143,7 @@ struct OptionView: View {
             //     Text(NSLocalizedString("Preferences", comment: ""))
             // }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
         .if_iOS16_ClearBackground()
         .navigationTitle(app.name)
         .background(Group {
