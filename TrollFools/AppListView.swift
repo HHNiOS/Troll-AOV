@@ -318,7 +318,6 @@ struct AppListView: View {
                 .foregroundColor(.secondary)
                 .padding(.leading, 6)
         }
-        }
     }
 
     var footer: some View { EmptyView() }
