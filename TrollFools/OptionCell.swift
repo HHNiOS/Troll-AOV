@@ -29,12 +29,11 @@ struct OptionCell: View {
             // ICON TRÒN NỀN MỜ NATIVE
             ZStack {
                 Circle()
-                    .fill(tintColor.opacity(0.15))
-                    .frame(width: 44, height: 44)
-                    .shadow(color: tintColor.opacity(0.3), radius: 6, x: 0, y: 3)
+                    .fill(tintColor.opacity(0.12))
+                    .frame(width: 32, height: 32)
                 
                 Image(systemName: iconName)
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(tintColor)
             }
             
