@@ -152,7 +152,7 @@ struct AppListView: View {
         .if_iOS16_ClearBackground()
         .animation(.spring(), value: appList.activeScopeApps.count)
         .animation(.spring(), value: appList.isRebuildNeeded)
-        .listStyle(.insetGrouped)
+        .listStyle(.plain)
         .navigationTitle(appList.isSelectorMode ? NSLocalizedString("Select Application", comment: "") : NSLocalizedString("Nakoto Panel", comment: ""))
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
@@ -196,10 +196,22 @@ struct AppListView: View {
             rebuildButton
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-                .listRowBackground(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
                         .applyGlassMaterial()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(LinearGradient(colors: [.blue.opacity(0.5), .purple.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                        )
+                        .shadow(color: .blue.opacity(0.15), radius: 12, x: 0, y: 6)
                 )
+                // Đồng bộ lề ngang chuẩn 18pt
+                .padding(.horizontal, 18)
+                .padding(.top, 16)
+                .padding(.bottom, 8)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .hideListRowSeparator()
                 .transition(.scale.combined(with: .opacity))
         }
 
@@ -271,11 +283,28 @@ struct AppListView: View {
                     AppListCell(app: app)
                 }
                 .buttonStyle(PlainButtonStyle())
+                // Content inset = 18 (lề ngoài) + 16 (lề trong cell) = 34pt
+                .listRowInsets(EdgeInsets(top: 8, leading: 34, bottom: 8, trailing: 34))
                 .listRowBackground(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    RoundedRectangle(cornerRadius: 18)
                         .applyGlassMaterial()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.4), .white.opacity(0.1), .clear],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1.5
+                                )
+                        )
+                        .shadow(color: .blue.opacity(0.15), radius: 10, x: 0, y: 5)
+                        // Đồng bộ lề ngang nền chuẩn 18pt (nhỏ gọn hơn bản cũ)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 3)
                 )
-                .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                .hideListRowSeparator()
             }
         }
     }
@@ -306,9 +335,14 @@ struct AppListView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-                .listRowBackground(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .background(
+                    RoundedRectangle(cornerRadius: 18)
                         .applyGlassMaterial()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 18)
+                                .stroke(LinearGradient(colors: [.orange.opacity(0.6), .red.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1.5)
+                        )
+                        .shadow(color: .orange.opacity(0.15), radius: 10, x: 0, y: 5)
                 )
             }
             .buttonStyle(PlainButtonStyle())
@@ -318,6 +352,13 @@ struct AppListView: View {
                 .foregroundColor(.secondary)
                 .padding(.leading, 6)
         }
+        // Đồng bộ lề ngang chuẩn 18pt
+        .padding(.horizontal, 18)
+        .padding(.top, 16)
+        .padding(.bottom, 8)
+        .listRowInsets(EdgeInsets())
+        .listRowBackground(Color.clear)
+        .hideListRowSeparator()
     }
 
     var footer: some View { EmptyView() }
