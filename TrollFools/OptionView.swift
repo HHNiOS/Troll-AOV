@@ -64,8 +64,9 @@ struct OptionView: View {
                     HStack(spacing: 12) {
                         OptionCell(option: .attach, detachCount: 0, isLoading: isDownloading)
                         
+                        Spacer()
+                        
                         if isDownloading {
-                            Spacer()
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle())
                         }
