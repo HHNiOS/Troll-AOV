@@ -25,35 +25,37 @@ struct OptionCell: View {
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 16) {
             // ICON TRÒN NỀN MỜ NATIVE
             ZStack {
                 Circle()
-                    .fill(tintColor.opacity(0.12))
-                    .frame(width: 36, height: 36)
+                    .fill(tintColor.opacity(0.15))
+                    .frame(width: 44, height: 44)
+                    .shadow(color: tintColor.opacity(0.3), radius: 6, x: 0, y: 3)
                 
                 Image(systemName: iconName)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(tintColor)
             }
             
             // TIÊU ĐỀ CELL
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text(option == .attach
                     ? NSLocalizedString("Inject Tweak", comment: "")
                     : NSLocalizedString("Remove Tweak", comment: ""))
-                    .font(.body)
+                    .font(.headline.weight(.bold))
                     .foregroundColor(.primary)
                 
                 Text(option == .attach
                     ? (isLoading ? NSLocalizedString("Downloading...", comment: "") : NSLocalizedString("Download and inject dylib", comment: ""))
                     : (isLoading ? NSLocalizedString("Ejecting...", comment: "") : NSLocalizedString("Clean app bundle", comment: "")))
-                    .font(.footnote)
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, 8)
         // SỬA TẠI ĐÂY: Chỉ khóa mờ hiển thị đối với nút gỡ khi không có tweak, nút inject luôn sáng rõ
         .opacity((option == .detach && detachCount == 0) ? 0.4 : 1.0)
+        .animation(.easeInOut, value: isLoading)
     }
 }
