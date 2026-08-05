@@ -292,14 +292,14 @@ struct AppListView: View {
                             RoundedRectangle(cornerRadius: 18)
                                 .stroke(
                                     LinearGradient(
-                                        colors: [.white.opacity(0.3), .white.opacity(0.05), .clear],
+                                        colors: [.white.opacity(0.4), .white.opacity(0.1), .clear],
                                         startPoint: .topLeading,
                                         endPoint: .bottomTrailing
                                     ),
-                                    lineWidth: 1
+                                    lineWidth: 1.5
                                 )
                         )
-                        .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 4)
+                        .shadow(color: .blue.opacity(0.15), radius: 10, x: 0, y: 5)
                         // Đồng bộ lề ngang nền chuẩn 18pt (nhỏ gọn hơn bản cũ)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 3)
